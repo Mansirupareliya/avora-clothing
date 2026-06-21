@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductsModule } from './products.module';
+import { CartModule } from './cart.module';
 
 @Module({
   imports: [
@@ -18,9 +19,9 @@ import { ProductsModule } from './products.module';
       autoLoadEntities: true,
       synchronize: true,
     }),
-    ProductsModule
+    ProductsModule,
+    CartModule,
   ],
-  
 })
 
 

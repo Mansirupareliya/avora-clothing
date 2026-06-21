@@ -3,12 +3,18 @@ import Sidebar from "./Component/Sidebar";
 import Home from "./pages/Home";
 import Products from "./product";
 import Store from "./Store";
+import ProductDetail from "./ProductDetail";
+import StoreLayout from "./StoreLayout";
+import CartLayout from "./CartLayout";
+import { CartProvider } from "./context/CartContext";
+import Cart from "./pages/Cart";
 
 function App() {
   const location = useLocation();
-  const isPublicRoute = location.pathname === "/store";
+  const isPublicRoute = location.pathname.startsWith("/store") || location.pathname === "/cart";
 
   return (
+    <CartProvider>
     <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
       {!isPublicRoute && <Sidebar />}
 
@@ -16,10 +22,17 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
-          <Route path="/store" element={<Store />} />
+          <Route path="/store" element={<StoreLayout />}>
+            <Route index element={<Store />} />
+            <Route path=":productId" element={<ProductDetail />} />
+          </Route>
+          <Route path="/cart" element={<CartLayout />}>
+            <Route index element={<Cart />} />
+          </Route>
         </Routes>
       </main>
     </div>
+    </CartProvider>
   );
 }
 

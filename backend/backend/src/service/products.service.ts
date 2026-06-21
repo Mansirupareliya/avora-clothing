@@ -46,7 +46,20 @@ export class ProductsService {
       message: 'Product deleted successfully',
     };
   }
+
+  async findOne(id: number) {
+    const product = await this.productRepository.findOne({
+      where: { id },
+    });
+
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    return product;
+  }
+
   async findAll() {
-  return await this.productRepository.find();
-}
+    return await this.productRepository.find();
+  }
 }

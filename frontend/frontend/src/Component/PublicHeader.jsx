@@ -1,9 +1,12 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { useCart } from "../context/CartContext";
 
 export default function PublicHeader() {
   const [searchActive, setSearchActive] = useState(false);
   const [activeTab, setActiveTab] = useState("Home");
+
+  const { cartCount } = useCart();
 
   const tabs = ["Home", "Shirts", "Plan Shirts", "Box Shirt"];
 
@@ -54,9 +57,11 @@ export default function PublicHeader() {
               className="relative text-lg hover:text-[var(--accent)] transition"
             >
               🛒
-              <span className="absolute -top-2 -right-2 bg-[var(--accent)] text-[var(--surface)] text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center text-xs">
-                0
-              </span>
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-[var(--accent)] text-[var(--surface)] text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
             </Link>
             <Link
               to="/"
