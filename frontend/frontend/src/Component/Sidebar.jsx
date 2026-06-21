@@ -1,0 +1,49 @@
+import { NavLink } from "react-router-dom";
+
+export default function Sidebar() {
+  const menuClass = ({ isActive }) =>
+    `flex items-center gap-3 px-4 py-3 rounded-lg transition text-sm font-medium ${
+      isActive
+        ? "bg-[var(--primary)] text-[var(--surface)] shadow-[0_8px_16px_-8px_rgba(33,45,67,0.45)]"
+        : "text-[var(--muted)] hover:bg-[var(--surface)] hover:text-[var(--primary)]"
+    }`;
+
+  return (
+    <aside className="fixed left-0 top-0 w-72 h-screen bg-[var(--primary)] border-r border-[var(--border)] text-[var(--surface)] shadow-2xl">
+      {/* Branding Section */}
+      <div className="p-3 border-b border-[var(--border)]">
+        
+        <div className="mt-3 flex items-center gap-3">
+          <img src="/logo-thewise.svg" alt="The Wise logo" className="w-10 h-10" />
+          <div>
+            <h6 className="text-base font-semibold tracking-wide text-[var(--surface)]" style={{fontFamily: "'Segoe UI', 'Trebuchet MS', serif"}}>
+              thewise
+            </h6>
+            <p className="text-[11px] text-[var(--muted)]">Men's wear</p>
+          </div>
+        </div>
+        
+      </div>
+
+      {/* Navigation */}
+      <nav className="px-3 mt-6 space-y-1">
+        <NavLink to="/" className={menuClass}>
+          <span className="text-base">🏠</span>
+          <span>Dashboard</span>
+        </NavLink>
+
+        <NavLink to="/products" className={menuClass}>
+          <span className="text-base">📦</span>
+          <span>Products</span>
+        </NavLink>
+      </nav>
+
+      {/* Footer */}
+      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-[var(--border)]">
+        <p className="text-[11px] text-[var(--muted)] text-center font-light">
+          v 1.0 • The Wise
+        </p>
+      </div>
+    </aside>
+  );
+}

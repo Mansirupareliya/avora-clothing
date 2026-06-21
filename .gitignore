@@ -1,0 +1,1 @@
+# Dependencies node_modules/ # Build folders dist/ build/ # Environment files .env .env.* # Logs *.log # VS Code .vscode/ # OS files .DS_Store Thumbs.db
