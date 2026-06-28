@@ -1,13 +1,13 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import Sidebar from "./Component/Sidebar";
-import  Home from "./Component/Home";
+import { Home } from "./Pages/Home"
 import Products from "./product";
 import Store from "./Store";
 import ProductDetail from "./ProductDetail";
 import StoreLayout from "./StoreLayout";
 import CartLayout from "./CartLayout";
 import { CartProvider } from "./Context/CartContext";
-import Cart from "./pages/Cart";
+import { Cart } from "./Pages/Cart";
 
 function App() {
   const location = useLocation();
