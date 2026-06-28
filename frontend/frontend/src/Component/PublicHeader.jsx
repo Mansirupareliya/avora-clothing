@@ -15,9 +15,9 @@ export default function PublicHeader() {
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-3">
         <div className="flex items-center justify-between gap-6">
           <div className="flex items-center gap-2 flex-shrink-0">
-            <img src="/logo-thewise.svg" alt="The Wise" className="w-8 h-8" />
+            <img src="/logo-thewise.svg" alt="AVORA" className="w-8 h-8" />
             <div className="hidden sm:block">
-              <h6 className="text-lg font-bold text-[var(--primary)]">The Wise</h6>
+              <h6 className="logo-text  font-bold text-[var(--primary)]">AVORA</h6>
             </div>
           </div>
 

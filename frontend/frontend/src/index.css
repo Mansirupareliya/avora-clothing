@@ -1,5 +1,76 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
+
+@font-face {
+  font-family: 'Louis George Cafe';
+  src: url('/fonts/Louis George Cafe.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Louis George Cafe';
+  src: url('/fonts/Louis George Cafe Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Louis George Cafe';
+  src: url('/fonts/Louis George Cafe Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Louis George Cafe';
+  src: url('/fonts/Louis George Cafe Light Italic.ttf') format('truetype');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Louis George Cafe';
+  src: url('/fonts/Louis George Cafe Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Louis George Cafe';
+  src: url('/fonts/Louis George Cafe Bold Italic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geometos';
+  src: url('/fonts/Geometos.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Okaluera';
+  src: url('/fonts/Okaluera.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PlatNomor';
+  src: url('/fonts/PlatNomor.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 :root {
   /* Palette: primary deep navy + warm/cool accents */
   --primary: #212d43; /* deep navy */
@@ -15,12 +86,12 @@
   --social-bg: rgba(244, 243, 236, 0.5);
   --shadow: rgba(0, 0, 0, 0.06) 0 10px 15px -3px, rgba(0, 0, 0, 0.03) 0 4px 6px -2px;
 
-  --sans: 'Poppins', system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: 'Poppins', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --sans: 'Louis George Cafe', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: 'Louis George Cafe', system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
+  font: 16px/150% var(--sans);
+  letter-spacing: 0.02em;
   color-scheme: light dark;
   color: var(--text);
   background: var(--bg);
@@ -58,19 +129,19 @@ h2 {
 }
 
 h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
+  font-size: 32px;
+  letter-spacing: -0.02em;
+  margin: 24px 0;
   @media (max-width: 1024px) {
-    font-size: 36px;
+    font-size: 28px;
     margin: 20px 0;
   }
 }
 h2 {
   font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
+  line-height: 130%;
+  letter-spacing: -0.01em;
+  margin: 0 0 12px;
   @media (max-width: 1024px) {
     font-size: 20px;
   }
@@ -92,4 +163,153 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+
+.product-name {
+  font-family: "agenda", Helvetica, "Helvetica Neue", sans-serif;
+  font-size: 1.375rem;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.logo-text {
+  font-family: 'Okaluera', 'Louis George Cafe', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 2.5rem;
+}
+
+.hero-title {
+  font-family: 'PlatNomor', 'Louis George Cafe', system-ui, sans-serif;
+  font-weight: 400;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.hero-animate {
+  animation: fadeInUp 1s ease-out forwards;
+}
+
+.hero-animate-delay-1 {
+  animation: fadeInUp 1s ease-out 0.2s forwards;
+  opacity: 0;
+}
+
+.hero-animate-delay-2 {
+  animation: fadeInUp 1s ease-out 0.4s forwards;
+  opacity: 0;
+}
+
+.hero-animate-scale {
+  animation: fadeInScale 1.2s ease-out 0.3s forwards;
+  opacity: 0;
+}
+
+.hero-text-shimmer {
+  background: linear-gradient(90deg, #ffffff 0%, #f0f0f0 50%, #ffffff 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: shimmer 3s linear infinite;
+}
+
+.hero-section {
+  position: relative;
+  overflow: hidden;
+  min-height: 700px;
+  height: 80vh;
+}
+
+.hero-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.hero-background::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: var(--bg-image-default);
+  background-size: cover;
+  background-position: center;
+  transition: opacity 0.8s ease-out;
+  opacity: 1;
+}
+
+.hero-background::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: var(--bg-image-hover);
+  background-size: cover;
+  background-position: center;
+  transition: opacity 0.8s ease-out;
+  opacity: 0;
+}
+
+.hero-section:hover .hero-background::before {
+  opacity: 0;
+}
+
+.hero-section:hover .hero-background::after {
+  opacity: 1;
+}
+
+.hero-section:hover .hero-background {
+  transform: perspective(1000px) rotateY(2deg) rotateX(1deg) scale(1.01);
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.6) 100%);
+  transition: background 0.8s ease-out;
+}
+
+.hero-section:hover .hero-overlay {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.5) 100%);
 }

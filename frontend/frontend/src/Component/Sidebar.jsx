@@ -14,10 +14,10 @@ export default function Sidebar() {
       <div className="p-3 border-b border-[var(--border)]">
         
         <div className="mt-3 flex items-center gap-3">
-          <img src="/logo-thewise.svg" alt="The Wise logo" className="w-10 h-10" />
+          <img src="/logo-thewise.svg" alt="AVORA logo" className="w-10 h-10" />
           <div>
-            <h6 className="text-base font-semibold tracking-wide text-[var(--surface)]" style={{fontFamily: "'Segoe UI', 'Trebuchet MS', serif"}}>
-              thewise
+            <h6 className="logo-text text-base font-semibold tracking-wide text-[var(--surface)]">
+              AVORA
             </h6>
             <p className="text-[11px] text-[var(--muted)]">Men's wear</p>
           </div>
@@ -41,7 +41,7 @@ export default function Sidebar() {
       {/* Footer */}
       <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-[var(--border)]">
         <p className="text-[11px] text-[var(--muted)] text-center font-light">
-          v 1.0 • The Wise
+          v 1.0 • AVORA
         </p>
       </div>
     </aside>

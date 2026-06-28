@@ -8,8 +8,8 @@ export default function Home() {
             <p className="text-xs uppercase tracking-[0.25em] text-[var(--primary)] font-semibold">
               Welcome to Dashboard
             </p>
-            <h1 className="mt-3 text-5xl font-bold text-[var(--text)]" style={{fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif"}}>
-              The Wise Studio
+            <h1 className="logo-text mt-3 text-5xl font-bold text-[var(--text)]">
+              AVORA Studio
             </h1>
             <p className="mt-4 max-w-2xl text-[var(--muted)] text-base leading-relaxed font-light">
               Manage your premium menswear catalog, update pricing, track inventory, and keep your collection ready for discerning customers.
@@ -18,7 +18,7 @@ export default function Home() {
 
           <div className="rounded-2xl bg-[var(--primary)] px-8 py-6 text-[var(--surface)] shadow-2xl border border-[var(--border)]">
             <p className="text-xs text-[var(--surface)]/70 uppercase tracking-[0.15em] font-medium">Active Store</p>
-            <p className="mt-3 text-2xl font-semibold">The Wise</p>
+            <p className="logo-text mt-3 text-2xl font-semibold">AVORA</p>
             <p className="mt-2 text-sm text-[var(--surface)]/70">Premium Collection</p>
           </div>
         </div>

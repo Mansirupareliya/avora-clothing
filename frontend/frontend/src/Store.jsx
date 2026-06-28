@@ -83,6 +83,43 @@ export default function Store() {
 
   return (
     <div className="min-h-screen bg-[var(--bg)]">
+      {/* Hero Section */}
+      <section 
+        className="hero-section relative bg-[var(--primary)] overflow-hidden"
+        style={{
+          '--bg-image-default': 'url("https://www.bringitonline.in/uploads/2/2/4/5/22456530/premium-men-s-shirt-photography-for-summer-collection-brand-in-delhi-mumbai-by-bring-it-online-bring-it-online-fashion-shoots-images-bio-7_orig.jpg")',
+          '--bg-image-hover': 'url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8FRrUlST0Wg3JrUXDOicl_y_KjUO4j1sUyucAYZw9&s")'
+        }}
+      >
+        <div className="hero-background"></div>
+        <div className="hero-overlay"></div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 md:px-8 py-32 md:py-48">
+          <div className="max-w-4xl">
+            <div className="hero-animate flex items-center gap-4 mb-8">
+              <div className="h-px w-16 bg-[var(--accent)]"></div>
+              <p className="text-sm md:text-base uppercase tracking-[0.4em] text-[var(--accent)] font-semibold" style={{ fontFamily: "'Louis George Cafe', system-ui, sans-serif" }}>
+                Premium Menswear Collection
+              </p>
+            </div>
+            <h1 className="hero-animate-scale hero-text-shimmer hero-title text-8xl md:text-[10rem] font-bold text-white mb-10 leading-none" style={{ lineHeight: '0.85', letterSpacing: '-0.02em' }}>
+              AVORA
+            </h1>
+            <p className="hero-animate-delay-1 text-xl md:text-3xl text-white/95 max-w-2xl mb-14 font-light leading-relaxed" style={{ fontFamily: "'Louis George Cafe', system-ui, sans-serif", letterSpacing: '0.02em', lineHeight: '1.6' }}>
+              Discover timeless elegance crafted for the modern gentleman. Premium fabrics, impeccable fit, and sophisticated style.
+            </p>
+            <div className="hero-animate-delay-2 flex flex-col sm:flex-row gap-6">
+              <button className="px-10 py-4 bg-[var(--accent)] text-white font-semibold rounded-none hover:bg-[var(--accent)]/90 transition-all duration-300 hover:shadow-2xl hover:scale-105 transform" style={{ fontFamily: "'Louis George Cafe', system-ui, sans-serif", letterSpacing: '0.1em', textTransform: 'uppercase', fontSize: '0.75rem' }}>
+                Shop men
+              </button>
+              <button className="px-10 py-4 border-2 border-white text-white font-semibold rounded-none hover:bg-white hover:text-[var(--primary)] transition-all duration-300 hover:scale-105 transform" style={{ fontFamily: "'Louis George Cafe', system-ui, sans-serif", letterSpacing: '0.1em', textTransform: 'uppercase', fontSize: '0.75rem' }}>
+                learn more
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
         <div className="space-y-4">
           <div className="flex flex-wrap gap-2 items-center text-xs">
@@ -182,11 +219,7 @@ export default function Store() {
 
                     <div className="p-4 text-left">
                       <h3
-                        className="font-semibold mb-2 uppercase text-lg tracking-tight"
-                        style={{
-                          fontFamily:
-                            'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
-                        }}
+                        className="product-name font-semibold mb-2 uppercase text-lg tracking-tight"
                       >
                         {product.name}
                       </h3>
@@ -226,7 +259,7 @@ export default function Store() {
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <h4 className="font-bold mb-4">The Wise</h4>
+              <h4 className="logo-text font-bold mb-4">AVORA</h4>
               <p className="text-sm opacity-80">
                 Premium menswear crafted for the modern gentleman.
               </p>
@@ -261,7 +294,7 @@ export default function Store() {
           </div>
 
           <div className="border-t border-white/20 mt-8 pt-8 text-center text-sm">
-            © 2026 The Wise. All rights reserved.
+            © 2026 AVORA. All rights reserved.
           </div>
         </div>
       </footer>

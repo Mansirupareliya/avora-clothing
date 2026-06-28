@@ -52,4 +52,20 @@ export class CreateProductDto {
   @IsOptional()
   @IsString()
   imageUrl?: string;
+
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (!value) return undefined;
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return value.split(',').map((item) => item.trim()).filter(Boolean);
+      }
+    }
+    return value;
+  })
+  @IsArray()
+  @IsString({ each: true })
+  images?: string[];
 }

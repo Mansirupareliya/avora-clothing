@@ -328,8 +328,10 @@ function Products() {
                           {idx + 1}
                         </span>
                       </td>
-                      <td className="px-5 py-4 font-semibold text-[var(--text)]">
-                        {product.name}
+                      <td className="px-5 py-4">
+                        <span className="product-name font-semibold text-[var(--text)]">
+                          {product.name}
+                        </span>
                       </td>
                       <td className="px-5 py-4">
                         {product.imageUrl ? (
