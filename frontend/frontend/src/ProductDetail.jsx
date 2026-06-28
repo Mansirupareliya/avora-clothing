@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import axios from "axios";
-import { useCart } from "./context/CartContext";
+import { useCart } from "./Context/CartContext";
 
 const API_URL = "http://localhost:3000/products";
 

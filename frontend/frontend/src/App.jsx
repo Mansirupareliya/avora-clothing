@@ -6,7 +6,7 @@ import Store from "./Store";
 import ProductDetail from "./ProductDetail";
 import StoreLayout from "./StoreLayout";
 import CartLayout from "./CartLayout";
-import { CartProvider } from "./Context/CartContext.jsx";
+import { CartProvider } from "./Context/CartContext";
 import { Cart } from "./Pages/Cart";
 
 function App() {

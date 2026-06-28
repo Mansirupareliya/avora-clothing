@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { useCart } from "../context/CartContext";
+import { useCart } from "../Context/CartContext";
 
 export default function PublicHeader() {
   const [searchActive, setSearchActive] = useState(false);
