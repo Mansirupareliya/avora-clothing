@@ -5,6 +5,7 @@ import { useCart } from "../Context/CartContext";
 export default function PublicHeader() {
   const [searchActive, setSearchActive] = useState(false);
   const [activeTab, setActiveTab] = useState("Home");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const { cartCount } = useCart();
 
@@ -17,14 +18,16 @@ export default function PublicHeader() {
           <div className="flex items-center gap-2 flex-shrink-0">
             <img src="/logo-thewise.svg" alt="AVORA" className="w-8 h-8" />
             <div className="hidden sm:block">
-              <h6 className="logo-text  font-bold text-[var(--primary)]">AVORA</h6>
+              <h6 className="logo-text font-bold text-[var(--primary)]">AVORA</h6>
             </div>
           </div>
 
+          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6 flex-1 justify-center">
             {tabs.map((tab) => (
-              <button
+              <Link
                 key={tab}
+                to={tab === "Home" ? "/store" : "/store"}
                 onClick={() => setActiveTab(tab)}
                 className={`text-sm font-medium transition ${
                   activeTab === tab
@@ -33,10 +36,11 @@ export default function PublicHeader() {
                 }`}
               >
                 {tab}
-              </button>
+              </Link>
             ))}
           </div>
 
+          {/* Desktop Search */}
           <div className="hidden md:flex flex-1 min-w-0 relative">
             <input
               type="text"
@@ -51,6 +55,14 @@ export default function PublicHeader() {
           </div>
 
           <div className="flex items-center gap-3 flex-shrink-0">
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden text-2xl text-[var(--text)] hover:text-[var(--primary)] transition"
+            >
+              {mobileMenuOpen ? "✕" : "☰"}
+            </button>
+
             <button className="text-lg hover:text-[var(--accent)] transition">👤</button>
             <Link
               to="/cart"
@@ -71,6 +83,48 @@ export default function PublicHeader() {
             </Link>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden mt-4 pb-4 border-t border-[var(--border)] pt-4">
+            <div className="space-y-3 mb-4">
+              {tabs.map((tab) => (
+                <Link
+                  key={tab}
+                  to="/store"
+                  onClick={() => {
+                    setActiveTab(tab);
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`block w-full text-left text-sm font-medium transition py-2 ${
+                    activeTab === tab
+                      ? "text-[var(--primary)] font-semibold"
+                      : "text-[var(--text)] hover:text-[var(--primary)]"
+                  }`}
+                >
+                  {tab}
+                </Link>
+              ))}
+            </div>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search..."
+                className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--bg)] text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 placeholder:text-[var(--muted)]"
+              />
+              <button className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted)] hover:text-[var(--primary)] transition text-sm">
+                🔍
+              </button>
+            </div>
+            <Link
+              to="/"
+              className="block mt-4 w-full text-center px-4 py-2 rounded-lg bg-[var(--primary)] text-[var(--surface)] text-xs font-bold hover:shadow-lg transition"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Admin
+            </Link>
+          </div>
+        )}
       </div>
     </header>
   );

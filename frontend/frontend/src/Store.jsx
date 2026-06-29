@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import Footer from "./Component/Footer";
+import { ProductCardSkeleton } from "./Component/Skeleton";
 
 const API_URL = "http://localhost:3000/products";
 
@@ -16,7 +18,16 @@ export default function Store() {
   const [maxPrice, setMaxPrice] = useState(1000);
   const [selectedDiscounts, setSelectedDiscounts] = useState([]);
   const [openFilter, setOpenFilter] = useState("");
+  const [likedProducts, setLikedProducts] = useState([]);
   const discountOptions = [20, 40, 60];
+
+  const toggleLike = (productId) => {
+    setLikedProducts((prev) =>
+      prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId]
+    );
+  };
 
   // Build categories from backend `products` (keep "All" first)
   const categories = [
@@ -94,25 +105,25 @@ export default function Store() {
         <div className="hero-background"></div>
         <div className="hero-overlay"></div>
         
-        <div className="relative max-w-7xl mx-auto px-4 md:px-8 py-32 md:py-48">
+        <div className="relative max-w-7xl mx-auto px-4 md:px-8 py-20 md:py-32 lg:py-48">
           <div className="max-w-4xl">
-            <div className="hero-animate flex items-center gap-4 mb-8">
-              <div className="h-px w-16 bg-[var(--accent)]"></div>
-              <p className="text-sm md:text-base uppercase tracking-[0.4em] text-[var(--accent)] font-semibold" style={{ fontFamily: "'Louis George Cafe', system-ui, sans-serif" }}>
+            <div className="hero-animate flex items-center gap-4 mb-6 md:mb-8">
+              <div className="h-px w-12 md:w-16 bg-[var(--accent)]"></div>
+              <p className="text-xs md:text-sm lg:text-base uppercase tracking-[0.2em] md:tracking-[0.4em] text-[var(--accent)] font-semibold" style={{ fontFamily: "'Louis George Cafe', system-ui, sans-serif" }}>
                 Premium Menswear Collection
               </p>
             </div>
-            <h1 className="hero-animate-scale hero-text-shimmer hero-title text-8xl md:text-[10rem] font-bold text-white mb-10 leading-none" style={{ lineHeight: '0.85', letterSpacing: '-0.02em' }}>
+            <h1 className="hero-animate-scale hero-text-shimmer hero-title text-5xl md:text-7xl lg:text-8xl xl:text-[10rem] font-bold text-white mb-6 md:mb-10 leading-none" style={{ lineHeight: '0.85', letterSpacing: '-0.02em' }}>
               AVORA
             </h1>
-            <p className="hero-animate-delay-1 text-xl md:text-3xl text-white/95 max-w-2xl mb-14 font-light leading-relaxed" style={{ fontFamily: "'Louis George Cafe', system-ui, sans-serif", letterSpacing: '0.02em', lineHeight: '1.6' }}>
+            <p className="hero-animate-delay-1 text-base md:text-xl lg:text-3xl text-white/95 max-w-2xl mb-8 md:mb-14 font-light leading-relaxed" style={{ fontFamily: "'Louis George Cafe', system-ui, sans-serif", letterSpacing: '0.02em', lineHeight: '1.6' }}>
               Discover timeless elegance crafted for the modern gentleman. Premium fabrics, impeccable fit, and sophisticated style.
             </p>
-            <div className="hero-animate-delay-2 flex flex-col sm:flex-row gap-6">
-              <button className="px-10 py-4 bg-[var(--accent)] text-white font-semibold rounded-none hover:bg-[var(--accent)]/90 transition-all duration-300 hover:shadow-2xl hover:scale-105 transform" style={{ fontFamily: "'Louis George Cafe', system-ui, sans-serif", letterSpacing: '0.1em', textTransform: 'uppercase', fontSize: '0.75rem' }}>
+            <div className="hero-animate-delay-2 flex flex-col sm:flex-row gap-4 md:gap-6">
+              <button className="px-8 py-3 md:px-10 md:py-4 bg-[var(--accent)] text-white font-semibold rounded-none hover:bg-[var(--accent)]/90 transition-all duration-300 hover:shadow-2xl hover:scale-105 transform" style={{ fontFamily: "'Louis George Cafe', system-ui, sans-serif", letterSpacing: '0.1em', textTransform: 'uppercase', fontSize: '0.65rem md:0.75rem' }}>
                 Shop men
               </button>
-              <button className="px-10 py-4 border-2 border-white text-white font-semibold rounded-none hover:bg-white hover:text-[var(--primary)] transition-all duration-300 hover:scale-105 transform" style={{ fontFamily: "'Louis George Cafe', system-ui, sans-serif", letterSpacing: '0.1em', textTransform: 'uppercase', fontSize: '0.75rem' }}>
+              <button className="px-8 py-3 md:px-10 md:py-4 border-2 border-white text-white font-semibold rounded-none hover:bg-white hover:text-[var(--primary)] transition-all duration-300 hover:scale-105 transform" style={{ fontFamily: "'Louis George Cafe', system-ui, sans-serif", letterSpacing: '0.1em', textTransform: 'uppercase', fontSize: '0.65rem md:0.75rem' }}>
                 learn more
               </button>
             </div>
@@ -120,9 +131,9 @@ export default function Store() {
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-6 md:py-8">
         <div className="space-y-4">
-          <div className="flex flex-wrap gap-2 items-center text-xs">
+          <div className="flex flex-wrap gap-2 md:gap-4 items-center text-xs">
             <span className="font-semibold text-[var(--text)]">Filters:</span>
 
             <div className="flex items-center gap-1">
@@ -147,7 +158,7 @@ export default function Store() {
                 value={minPrice}
                 onChange={(e) => setMinPrice(Number(e.target.value))}
                 placeholder="Min"
-                className="bg-transparent px-1 py-0 text-xs text-[var(--text)] w-12 hover:text-[#c86f49] focus:outline-none"
+                className="bg-transparent px-1 py-0 text-xs text-[var(--text)] w-10 md:w-12 hover:text-[#c86f49] focus:outline-none"
               />
               <span className="text-[var(--muted)]">-</span>
               <input
@@ -155,7 +166,7 @@ export default function Store() {
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(Number(e.target.value))}
                 placeholder="Max"
-                className="bg-transparent px-1 py-0 text-xs text-[var(--text)] w-12 hover:text-[#c86f49] focus:outline-none"
+                className="bg-transparent px-1 py-0 text-xs text-[var(--text)] w-10 md:w-12 hover:text-[#c86f49] focus:outline-none"
               />
             </div>
 
@@ -196,108 +207,100 @@ export default function Store() {
 
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
             <div className="xl:col-span-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-                {filteredProducts.map((product) => (
-                  <Link
+              {loading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+                  {[...Array(8)].map((_, i) => (
+                    <ProductCardSkeleton key={i} />
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+                  {filteredProducts.map((product) => (
+                  <div
                     key={product.id}
-                    to={`/store/${product.id}`}
-                    className="block border border-[var(--border)] bg-[var(--surface)] overflow-hidden shadow-sm hover:shadow-xl transition"
+                    className=" overflow-hidden shadow-sm hover:shadow-xl transition relative"
                   >
-                    <div className="h-96 bg-gray-100 overflow-hidden">
-                      {product.imageUrl ? (
-                        <img
-                          src={product.imageUrl}
-                          alt={product.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          👕
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="p-4 text-left">
-                      <h3
-                        className="product-name font-semibold mb-2 uppercase text-lg tracking-tight"
-                      >
-                        {product.name}
-                      </h3>
-
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="font-bold">
-                          ₹{product.price}
-                        </span>
-
-                        {product.mrp && (
-                          <span className="text-sm text-gray-500 line-through">
-                            ₹{product.mrp}
-                          </span>
+                    <Link to={`/store/${product.id}`}>
+                      <div className="h-96 bg-gray-100 overflow-hidden relative">
+                        {product.imageUrl ? (
+                          <img
+                            src={product.imageUrl}
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            👕
+                          </div>
                         )}
+                        {/* Like Button */}
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            toggleLike(product.id);
+                          }}
+                          className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm shadow-md flex items-center justify-center hover:bg-white transition-all hover:scale-110 z-10"
+                        >
+                          <svg
+                            className={`w-4 h-4 transition-colors ${
+                              likedProducts.includes(product.id)
+                                ? "text-red-500 fill-red-500"
+                                : "text-gray-400"
+                            }`}
+                            viewBox="0 0 24 24"
+                            fill={likedProducts.includes(product.id) ? "currentColor" : "none"}
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                            />
+                          </svg>
+                        </button>
                       </div>
 
-                      {product.discount > 0 && (
-                        <p className="text-sm" style={{ color: "#c86f49" }}>
-                          ₹{product.mrp - product.price} Off
-                        </p>
-                      )}
+                      <div className="p-4 text-left">
+                        <h3
+                          className="product-name font-semibold mb-2 uppercase text-lg tracking-tight"
+                        >
+                          {product.name}
+                        </h3>
 
-                      <p className="text-xs mt-1" style={{ color: "#c86f49" }}>
-                        Free delivery on prepaid orders
-                      </p>
-                    </div>
-                  </Link>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="font-bold">
+                            ₹{product.price}
+                          </span>
+
+                          {product.mrp && (
+                            <span className="text-sm text-gray-500 line-through">
+                              ₹{product.mrp}
+                            </span>
+                          )}
+                        </div>
+
+                        {product.discount > 0 && (
+                          <p className="text-sm" style={{ color: "#c86f49" }}>
+                            ₹{product.mrp - product.price} Off
+                          </p>
+                        )}
+
+                        <p className="text-xs mt-1" style={{ color: "#c86f49" }}>
+                          Free delivery on prepaid orders
+                        </p>
+                      </div>
+                    </Link>
+                  </div>
                 ))}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-[var(--primary)] text-white">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <h4 className="logo-text font-bold mb-4">AVORA</h4>
-              <p className="text-sm opacity-80">
-                Premium menswear crafted for the modern gentleman.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="font-bold mb-4">Shop</h4>
-              <ul className="space-y-2">
-                <li>New Arrivals</li>
-                <li>Best Sellers</li>
-                <li>Sale</li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-bold mb-4">Company</h4>
-              <ul className="space-y-2">
-                <li>About Us</li>
-                <li>Contact</li>
-                <li>Blog</li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-bold mb-4">Support</h4>
-              <ul className="space-y-2">
-                <li>Help Center</li>
-                <li>Shipping Info</li>
-                <li>Returns</li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="border-t border-white/20 mt-8 pt-8 text-center text-sm">
-            © 2026 AVORA. All rights reserved.
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
