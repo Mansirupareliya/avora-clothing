@@ -9,7 +9,13 @@ export default function PublicHeader() {
 
   const { cartCount } = useCart();
 
-  const tabs = ["Home", "Shirts", "Plan Shirts", "Box Shirt"];
+  const navItems = [
+    { label: "Home", path: "/store" },
+    { label: "Shirts", path: "/store" },
+    { label: "Plan Shirts", path: "/store" },
+    { label: "Box Shirt", path: "/store" },
+    { label: "About Us", path: "/store/about" }
+  ];
 
   return (
     <header className="bg-[var(--surface)] sticky top-0 z-50 shadow-sm border-b border-[var(--border)]">
@@ -24,18 +30,18 @@ export default function PublicHeader() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6 flex-1 justify-center">
-            {tabs.map((tab) => (
+            {navItems.map((item) => (
               <Link
-                key={tab}
-                to={tab === "Home" ? "/store" : "/store"}
-                onClick={() => setActiveTab(tab)}
+                key={item.label}
+                to={item.path}
+                onClick={() => setActiveTab(item.label)}
                 className={`text-sm font-medium transition ${
-                  activeTab === tab
+                  activeTab === item.label
                     ? "text-[var(--primary)] border-b-2 border-[var(--primary)]"
                     : "text-[var(--text)] hover:text-[var(--primary)]"
                 }`}
               >
-                {tab}
+                {item.label}
               </Link>
             ))}
           </div>
@@ -88,21 +94,21 @@ export default function PublicHeader() {
         {mobileMenuOpen && (
           <div className="md:hidden mt-4 pb-4 border-t border-[var(--border)] pt-4">
             <div className="space-y-3 mb-4">
-              {tabs.map((tab) => (
+              {navItems.map((item) => (
                 <Link
-                  key={tab}
-                  to="/store"
+                  key={item.label}
+                  to={item.path}
                   onClick={() => {
-                    setActiveTab(tab);
+                    setActiveTab(item.label);
                     setMobileMenuOpen(false);
                   }}
                   className={`block w-full text-left text-sm font-medium transition py-2 ${
-                    activeTab === tab
+                    activeTab === item.label
                       ? "text-[var(--primary)] font-semibold"
                       : "text-[var(--text)] hover:text-[var(--primary)]"
                   }`}
                 >
-                  {tab}
+                  {item.label}
                 </Link>
               ))}
             </div>

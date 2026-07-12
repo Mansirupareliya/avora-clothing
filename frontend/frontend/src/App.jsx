@@ -8,6 +8,7 @@ import StoreLayout from "./StoreLayout";
 import CartLayout from "./CartLayout";
 import { CartProvider } from "./Context/CartContext";
 import Cart from "./Pages/Cart";
+import About from "./Pages/About";
 
 function App() {
   const location = useLocation();
@@ -24,6 +25,7 @@ function App() {
           <Route path="/products" element={<Products />} />
           <Route path="/store" element={<StoreLayout />}>
             <Route index element={<Store />} />
+            <Route path="about" element={<About />} />
             <Route path=":productId" element={<ProductDetail />} />
           </Route>
           <Route path="/cart" element={<CartLayout />}>
