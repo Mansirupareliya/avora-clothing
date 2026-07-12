@@ -71,17 +71,26 @@
   font-style: normal;
   font-display: swap;
 }
+
 :root {
   /* Palette: primary deep navy + warm/cool accents */
-  --primary: #212d43; /* deep navy */
-  --accent: #c86f49; /* muted terracotta - primary CTA */
-  --accent-2: #2da7a1; /* teal - secondary accent */
+  --primary: #212d43;
+  /* deep navy */
+  --accent: #c86f49;
+  /* muted terracotta - primary CTA */
+  --accent-2: #2da7a1;
+  /* teal - secondary accent */
 
-  --text: #0f1724; /* heading / primary text */
-  --muted: #6b7280; /* secondary text */
-  --bg: #f5f7fb; /* page background */
-  --surface: #ffffff; /* cards / panels */
-  --border: #e6e9f0; /* dividers */
+  --text: #0f1724;
+  /* heading / primary text */
+  --muted: #6b7280;
+  /* secondary text */
+  --bg: #f5f7fb;
+  /* page background */
+  --surface: #ffffff;
+  /* cards / panels */
+  --border: #e6e9f0;
+  /* dividers */
   --code-bg: #f4f3ec;
   --social-bg: rgba(244, 243, 236, 0.5);
   --shadow: rgba(0, 0, 0, 0.06) 0 10px 15px -3px, rgba(0, 0, 0, 0.03) 0 4px 6px -2px;
@@ -132,20 +141,24 @@ h1 {
   font-size: 32px;
   letter-spacing: -0.02em;
   margin: 24px 0;
+
   @media (max-width: 1024px) {
     font-size: 28px;
     margin: 20px 0;
   }
 }
+
 h2 {
   font-size: 24px;
   line-height: 130%;
   letter-spacing: -0.01em;
   margin: 0 0 12px;
+
   @media (max-width: 1024px) {
     font-size: 20px;
   }
 }
+
 p {
   margin: 0;
 }
@@ -188,6 +201,7 @@ code {
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -199,6 +213,7 @@ code {
     opacity: 0;
     transform: scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -209,6 +224,7 @@ code {
   0% {
     background-position: -200% center;
   }
+
   100% {
     background-position: 200% center;
   }
@@ -241,34 +257,13 @@ code {
   animation: shimmer 3s linear infinite;
 }
 
-/* ── Hero Section ───────────────────────────────────────────── */
 .hero-section {
   position: relative;
   overflow: hidden;
-  min-height: 80vh;
-  height: 90vh;
-  display: flex;
-  align-items: center;
+  min-height: 700px;
+  height: 80vh;
 }
 
-.hero-bg-img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center top;
-  transform: scale(1.03);
-  transition: transform 8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-}
-
-.hero-section:hover .hero-bg-img {
-  transform: scale(1.07);
-}
-
-/* Keep backward compat for ::before / ::after CSS-var approach */
 .hero-background {
   position: absolute;
   top: 0;
@@ -276,69 +271,61 @@ code {
   width: 100%;
   height: 100%;
   background-size: cover;
-  background-position: center top;
-  transition: transform 8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  background-position: center;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
 }
 
 .hero-background::before {
   content: '';
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-image: var(--bg-image-default);
   background-size: cover;
-  background-position: center top;
-  transition: opacity 1s ease-out;
+  background-position: center;
+  transition: opacity 0.8s ease-out;
   opacity: 1;
 }
 
 .hero-background::after {
   content: '';
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-image: var(--bg-image-hover);
   background-size: cover;
-  background-position: center top;
-  transition: opacity 1s ease-out;
+  background-position: center;
+  transition: opacity 0.8s ease-out;
   opacity: 0;
 }
 
-.hero-section:hover .hero-background::before { opacity: 0; }
-.hero-section:hover .hero-background::after  { opacity: 1; }
-
-.hero-section:hover .hero-background {
-  transform: scale(1.04);
+.hero-section:hover .hero-background::before {
+  opacity: 0;
 }
 
-/* Right-side fade: reveal image on right, text on left */
+.hero-section:hover .hero-background::after {
+  opacity: 1;
+}
+
+.hero-section:hover .hero-background {
+  transform: perspective(1000px) rotateY(2deg) rotateX(1deg) scale(1.01);
+}
+
 .hero-overlay {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    105deg,
-    rgba(10, 16, 30, 0.88) 0%,
-    rgba(10, 16, 30, 0.72) 40%,
-    rgba(10, 16, 30, 0.25) 70%,
-    rgba(10, 16, 30, 0.05) 100%
-  );
-  transition: background 1s ease-out;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.6) 100%);
+  transition: background 0.8s ease-out;
 }
 
 .hero-section:hover .hero-overlay {
-  background: linear-gradient(
-    105deg,
-    rgba(10, 16, 30, 0.80) 0%,
-    rgba(10, 16, 30, 0.60) 40%,
-    rgba(10, 16, 30, 0.15) 70%,
-    rgba(10, 16, 30, 0.02) 100%
-  );
-}
-
-/* Horizontal accent rule */
-.hero-rule {
-  display: inline-block;
-  width: 48px;
-  height: 2px;
-  background: var(--accent);
-  vertical-align: middle;
-  margin-right: 12px;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.5) 100%);
 }
