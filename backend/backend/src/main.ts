@@ -16,13 +16,25 @@ async function bootstrap() {
     prefix: '/uploads',
   });
 
-  // Allow multiple origins via comma-separated CORS_ORIGIN env var
+  // Allow origins from CORS_ORIGIN env var + all Netlify preview URLs
   const allowedOrigins = (
     process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:5175'
   ).split(',').map((o) => o.trim());
 
   app.enableCors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (curl, Postman, server-to-server)
+      if (!origin) return callback(null, true);
+      // Allow any *.netlify.app subdomain automatically
+      if (/^https:\/\/[a-z0-9-]+\.netlify\.app$/.test(origin)) {
+        return callback(null, true);
+      }
+      // Allow explicitly listed origins
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error(`CORS blocked: ${origin}`), false);
+    },
     credentials: true,
   });
 
