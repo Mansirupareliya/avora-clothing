@@ -5,6 +5,22 @@ import { ProductsModule } from './products.module';
 import { CartModule } from './cart.module';
 import { ReviewsModule } from './reviews.module';
 
+// Build TypeORM connection config based on environment
+const dbConfig = process.env.DATABASE_URL
+  ? {
+      // ── Render (production): connect via URL with SSL ──
+      url: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
+    }
+  : {
+      // ── Local development: connect via individual params ──
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT || '5432'),
+      username: process.env.DB_USERNAME || 'postgres',
+      password: process.env.DB_PASSWORD || 'Postgres',
+      database: process.env.DB_NAME || 'mens',
+    };
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -12,24 +28,14 @@ import { ReviewsModule } from './reviews.module';
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: process.env.DATABASE_URL,
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '5432'),
-      username: process.env.DB_USERNAME || 'postgres',
-      password: process.env.DB_PASSWORD || 'Postgres',
-      database: process.env.DB_NAME || 'mens',
+      ...dbConfig,
       autoLoadEntities: true,
       synchronize: true,
-      // Required for Render's managed Postgres (SSL)
-      ssl: process.env.DATABASE_URL
-        ? { rejectUnauthorized: false }
-        : false,
     }),
     ProductsModule,
     CartModule,
     ReviewsModule,
   ],
 })
-
-
-export class AppModule {}
+export class AppModule {}
+
