@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 
 export default function Sidebar() {
   const menuClass = ({ isActive }) =>
-    `flex items-center gap-3 px-4 py-3 rounded-lg transition text-sm font-medium ${
+    `flex items-center gap-3 px-4 py-3  transition text-sm font-medium ${
       isActive
         ? "bg-[var(--primary)] text-[var(--surface)] shadow-[0_8px_16px_-8px_rgba(33,45,67,0.45)]"
         : "text-[var(--muted)] hover:bg-[var(--surface)] hover:text-[var(--primary)]"

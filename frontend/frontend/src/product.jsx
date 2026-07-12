@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/products";
+const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/products`;
 
 function Products() {
   const [products, setProducts] = useState([]);
@@ -105,15 +105,15 @@ function Products() {
                 Product Management
               </p>
               <h1 className="mt-3 text-4xl font-bold text-[var(--text)]">
-                Manage Menswear
+                Manage Avora
               </h1>
               <p className="mt-2 text-[var(--muted)] font-light">
                 Add, edit, and organize your premium collection with ease.
               </p>
             </div>
 
-            <div className="inline-flex items-center gap-3 rounded-xl bg-[var(--primary)] px-6 py-4 text-[var(--surface)] shadow-lg border border-[var(--border)]">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--surface)] text-lg text-[var(--primary)]">
+            <div className="inline-flex items-center gap-3  bg-[var(--primary)] px-6 py-4 text-[var(--surface)] shadow-lg border border-[var(--border)]">
+              <div className="flex h-10 w-10 items-center justify-center  bg-[var(--surface)] text-lg text-[var(--primary)]">
                 📦
               </div>
               <div>
@@ -157,7 +157,7 @@ function Products() {
                     placeholder="e.g., Premium Cotton Shirt"
                     value={form.name}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 placeholder:text-[var(--muted)]"
+                    className="w-full  border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 placeholder:text-[var(--muted)]"
                     required
                   />
                 </div>
@@ -169,7 +169,7 @@ function Products() {
                     placeholder="Short description"
                     value={form.description}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 placeholder:text-[var(--muted)]"
+                    className="w-full  border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 placeholder:text-[var(--muted)]"
                     required
                   />
                 </div>
@@ -184,7 +184,7 @@ function Products() {
                     placeholder="Original price"
                     value={form.mrp}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 placeholder:text-[var(--muted)]"
+                    className="w-full  border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 placeholder:text-[var(--muted)]"
                     required
                   />
                 </div>
@@ -196,7 +196,7 @@ function Products() {
                     placeholder="0-100"
                     value={form.discount}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 placeholder:text-[var(--muted)]"
+                    className="w-full  border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 placeholder:text-[var(--muted)]"
                     required
                   />
                 </div>
@@ -208,7 +208,7 @@ function Products() {
                     placeholder="Final price"
                     value={form.price}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 placeholder:text-[var(--muted)]"
+                    className="w-full  border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 placeholder:text-[var(--muted)]"
                     required
                   />
                 </div>
@@ -221,7 +221,7 @@ function Products() {
                     name="category"
                     value={form.category}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10"
+                    className="w-full  border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10"
                     required
                   >
                     <option value="">Select category</option>
@@ -239,13 +239,13 @@ function Products() {
                     placeholder="e.g., S, M, L, XL"
                     value={form.sizes}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 placeholder:text-[var(--muted)]"
+                    className="w-full  border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 placeholder:text-[var(--muted)]"
                   />
                 </div>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
-                <label className="flex flex-col justify-center rounded-lg border-2 border-dashed border-[var(--border)] bg-[var(--surface)] px-4 py-6 text-sm text-[var(--muted)] transition hover:border-[var(--primary)] hover:bg-[var(--bg)] cursor-pointer">
+                <label className="flex flex-col justify-center  border-2 border-dashed border-[var(--border)] bg-[var(--surface)] px-4 py-6 text-sm text-[var(--muted)] transition hover:border-[var(--primary)] hover:bg-[var(--bg)] cursor-pointer">
                   <span className="font-semibold text-[var(--text)]">📸 Upload Image</span>
                   <span className="mt-1 text-xs text-[var(--muted)]">PNG, JPG up to 5MB</span>
                   <input
@@ -298,12 +298,12 @@ function Products() {
                 Edit or delete items from your collection
               </p>
             </div>
-            <span className="inline-flex items-center rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-bold text-[var(--surface)]">
+            <span className="inline-flex items-center  bg-[var(--primary)] px-4 py-2 text-sm font-bold text-[var(--surface)]">
               {products.length} {products.length === 1 ? "Product" : "Products"}
             </span>
           </div>
 
-          <div className="overflow-x-auto rounded-lg border border-[var(--border)]">
+          <div className="overflow-x-auto  border border-[var(--border)]">
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="bg-[var(--primary)] text-[var(--surface)] border-b border-[var(--border)]">
@@ -324,7 +324,7 @@ function Products() {
                       className="hover:bg-[var(--bg)] transition-colors group"
                     >
                       <td className="px-5 py-4">
-                        <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[var(--bg)] text-xs font-bold text-[var(--text)]">
+                        <span className="inline-flex items-center justify-center w-8 h-8  bg-[var(--bg)] text-xs font-bold text-[var(--text)]">
                           {idx + 1}
                         </span>
                       </td>
@@ -338,10 +338,10 @@ function Products() {
                           <img
                             src={product.imageUrl}
                             alt={product.name}
-                            className="h-14 w-14 rounded-lg object-cover shadow-md group-hover:shadow-lg transition"
+                            className="h-14 w-14  object-cover shadow-md group-hover:shadow-lg transition"
                           />
                         ) : (
-                          <div className="flex h-14 w-14 items-center justify-center rounded-lg border-2 border-dashed border-[var(--border)] bg-[var(--surface)] text-xs text-[var(--muted)]">
+                          <div className="flex h-14 w-14 items-center justify-center  border-2 border-dashed border-[var(--border)] bg-[var(--surface)] text-xs text-[var(--muted)]">
                             —
                           </div>
                         )}
@@ -352,7 +352,7 @@ function Products() {
                       <td className="px-5 py-4">
                         <div className="space-y-1">
                           <div className="text-xs text-[var(--muted)]">MRP: ₹{product.mrp}</div>
-                          <div className="inline-flex rounded-md bg-[var(--accent)]/15 px-2 py-1 text-xs font-bold text-[var(--accent)]">
+                          <div className="inline-flex  bg-[var(--accent)]/15 px-2 py-1 text-xs font-bold text-[var(--accent)]">
                             -{product.discount}%
                           </div>
                           <div className="text-sm font-bold text-[var(--text)]">₹{product.price}</div>

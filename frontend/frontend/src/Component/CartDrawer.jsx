@@ -24,7 +24,7 @@ return ( <div className="min-h-screen bg-[var(--bg)] text-[var(--text)] flex ite
 
       <Link
         to="/store"
-        className="inline-flex items-center justify-center rounded-xl bg-[var(--primary)] px-6 py-3 text-sm font-semibold text-white hover:opacity-90"
+        className="inline-flex items-center justify-center  bg-[var(--primary)] px-6 py-3 text-sm font-semibold text-white hover:opacity-90"
       >
         Continue Shopping
       </Link>
@@ -66,14 +66,14 @@ return ( <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]"> <div c
         {cartItems.map((item) => (
           <div
             key={item.id}
-            className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 shadow-sm"
+            className="bg-[var(--surface)] border border-[var(--border)]  p-4 shadow-sm"
           >
             <div className="flex gap-4">
 
               <img
                 src={item.imageUrl}
                 alt={item.productName}
-                className="w-28 h-32 object-cover rounded-xl flex-shrink-0"
+                className="w-28 h-32 object-cover  flex-shrink-0"
               />
 
               <div className="flex-1">
@@ -83,11 +83,11 @@ return ( <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]"> <div c
                 </h3>
 
                 <div className="flex flex-wrap gap-2 mt-2">
-                  <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">
+                  <span className="px-3 py-1 bg-gray-100 text-gray-700  text-xs">
                     Size: {item.size || "N/A"}
                   </span>
 
-                  <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">
+                  <span className="px-3 py-1 bg-gray-100 text-gray-700  text-xs">
                     {item.category}
                   </span>
                 </div>
@@ -113,7 +113,7 @@ return ( <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]"> <div c
                         item.size
                       )
                     }
-                    className="w-8 h-8 rounded-full border border-[var(--border)]"
+                    className="w-8 h-8  border border-[var(--border)]"
                   >
                     -
                   </button>
@@ -130,7 +130,7 @@ return ( <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]"> <div c
                         item.size
                       )
                     }
-                    className="w-8 h-8 rounded-full border border-[var(--border)]"
+                    className="w-8 h-8  border border-[var(--border)]"
                   >
                     +
                   </button>
@@ -160,7 +160,7 @@ return ( <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]"> <div c
         <div className="sticky top-20 space-y-4">
 
           {/* Coupon */}
-          <div className="bg-[#fff7f3] border border-[#c86f49] rounded-xl p-4">
+          <div className="bg-[#fff7f3] border border-[#c86f49]  p-4">
             <h3 className="font-semibold mb-3">
               🎉 Apply Coupon
             </h3>
@@ -179,7 +179,7 @@ return ( <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]"> <div c
           </div>
 
           {/* Summary */}
-          <div className="border border-[var(--border)] rounded-2xl bg-[var(--surface)] p-6">
+          <div className="border border-[var(--border)]  bg-[var(--surface)] p-6">
 
             <h2 className="text-xl font-bold mb-5">
               Order Summary
@@ -213,7 +213,7 @@ return ( <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]"> <div c
             </div>
 
             {/* Delivery */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-5">
+            <div className="bg-blue-50 border border-blue-200  p-3 mt-5">
               🚚 Estimated Delivery:
               <span className="font-semibold ml-1">
                 3 - 5 Business Days
@@ -221,7 +221,7 @@ return ( <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]"> <div c
             </div>
 
             {/* Secure Payment */}
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-4">
+            <div className="bg-green-50 border border-green-200  p-3 mt-4">
               🔒 Secure Checkout & Safe Payments
             </div>
 
@@ -232,13 +232,13 @@ return ( <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]"> <div c
             </div>
 
             {/* Checkout */}
-            <button className="w-full bg-[var(--primary)] text-white font-semibold py-4 rounded-xl hover:opacity-90 transition mb-3">
+            <button className="w-full bg-[var(--primary)] text-white font-semibold py-4  hover:opacity-90 transition mb-3">
               Proceed To Checkout
             </button>
 
             <button
               onClick={clearCart}
-              className="w-full border border-[var(--border)] py-4 rounded-xl font-semibold hover:bg-[var(--bg)] transition"
+              className="w-full border border-[var(--border)] py-4  font-semibold hover:bg-[var(--bg)] transition"
             >
               Clear Cart
             </button>

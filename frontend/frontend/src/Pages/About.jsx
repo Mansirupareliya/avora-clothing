@@ -153,7 +153,7 @@ export default function About() {
             {values.map((val, idx) => (
               <div 
                 key={idx}
-                className="bg-[var(--surface)] p-8 border border-[var(--border)] rounded-none shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
+                className="bg-[var(--surface)] p-8 border border-[var(--border)]  shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
               >
                 <div className="space-y-4">
                   <div className="text-4xl text-[var(--accent)]">{val.icon}</div>
@@ -207,7 +207,7 @@ export default function About() {
               {features.map((feat, idx) => (
                 <div key={idx} className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <span className="w-1.5 h-1.5 bg-[var(--accent)] rounded-full flex-shrink-0"></span>
+                    <span className="w-1.5 h-1.5 bg-[var(--accent)]  flex-shrink-0"></span>
                     <h4 className="text-lg font-medium text-[var(--primary)]">{feat.title}</h4>
                   </div>
                   <p className="text-sm text-[var(--text)] font-normal leading-relaxed pl-4.5">

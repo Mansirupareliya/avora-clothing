@@ -31,8 +31,8 @@ export default function Cart() {
               </div>
               <div className="lg:col-span-1">
                 <div className="sticky top-20 space-y-4">
-                  <Skeleton className="h-40 w-full rounded-xl" />
-                  <Skeleton className="h-80 w-full rounded-2xl" />
+                  <Skeleton className="h-40 w-full " />
+                  <Skeleton className="h-80 w-full " />
                 </div>
               </div>
             </div>
@@ -60,7 +60,7 @@ export default function Cart() {
 
             <Link
               to="/store"
-              className="inline-flex items-center justify-center rounded-xl bg-[var(--primary)] px-6 py-3 text-sm font-semibold text-white hover:opacity-90"
+              className="inline-flex items-center justify-center  bg-[var(--primary)] px-6 py-3 text-sm font-semibold text-white hover:opacity-90"
             >
               Continue Shopping
             </Link>

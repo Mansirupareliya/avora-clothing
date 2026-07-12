@@ -83,11 +83,11 @@ export default function ProductDetail() {
   if (error || !product) {
     return (
       <div className="min-h-screen bg-[var(--bg)] text-[var(--text)] flex items-center justify-center py-20">
-        <div className="max-w-xl mx-auto rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-10 text-left shadow-lg">
+        <div className="max-w-xl mx-auto  border border-[var(--border)] bg-[var(--surface)] p-10 text-left shadow-lg">
           <p className="mb-6 text-lg font-semibold">{error || "Product not found."}</p>
           <Link
             to="/store"
-            className="inline-flex items-center justify-center rounded-full bg-[var(--primary)] px-6 py-3 text-sm font-semibold text-white hover:bg-opacity-90"
+            className="inline-flex items-center justify-center  bg-[var(--primary)] px-6 py-3 text-sm font-semibold text-white hover:bg-opacity-90"
           >
             Back to store
           </Link>
@@ -183,7 +183,7 @@ export default function ProductDetail() {
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`w-16 h-16 lg:w-20 lg:h-20 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 ${selectedImage === index
+                  className={`w-16 h-16 lg:w-20 lg:h-20  overflow-hidden border-2 transition-all flex-shrink-0 ${selectedImage === index
                       ? 'border-[var(--accent)] scale-105'
                       : 'border-[var(--border)] hover:border-[var(--primary)]'
                     }`}
@@ -198,7 +198,7 @@ export default function ProductDetail() {
             </div>
 
             {/* Main Image with Zoom */}
-            <div className="flex-1 rounded-2xl overflow-hidden border border-[var(--border)] bg-[var(--surface)] relative">
+            <div className="flex-1  overflow-hidden border border-[var(--border)] bg-[var(--surface)] relative">
               <div
                 className="w-full h-[350px] md:h-[450px] lg:h-[560px] overflow-hidden cursor-zoom-in"
                 onMouseMove={handleMouseMove}
@@ -230,7 +230,7 @@ export default function ProductDetail() {
                   </span>
                 </div>
 
-                <div className="inline-flex items-center gap-1 rounded-full border border-[var(--border)] bg-[var(--bg)] px-2 py-1 text-xs font-semibold text-[var(--text)]">
+                <div className="inline-flex items-center gap-1  border border-[var(--border)] bg-[var(--bg)] px-2 py-1 text-xs font-semibold text-[var(--text)]">
                   ⭐ 5|4 Review
                 </div>
               </div>
@@ -265,7 +265,7 @@ export default function ProductDetail() {
                     key={size}
                     type="button"
                     onClick={() => setSelectedSize(size)}
-                    className={`min-w-[50px] md:min-w-[60px] rounded-full border px-2 py-1 md:px-1 md:py-1 text-xs md:text-sm transition-all ${selectedSize === size
+                    className={`min-w-[50px] md:min-w-[60px]  border px-2 py-1 md:px-1 md:py-1 text-xs md:text-sm transition-all ${selectedSize === size
                         ? "bg-[var(--primary)] text-white border-[var(--primary)]"
                         : "border-gray-400 text-[var(--text)] hover:border-[var(--primary)]"
                       }`}
@@ -376,10 +376,10 @@ export default function ProductDetail() {
         </div>
 
         {/* Reviews Section */}
-        <div className="mt-12 bg-[var(--surface)] p-8 md:p-12 rounded-2xl border border-[var(--border)]">
+        <div className="mt-12 bg-[var(--surface)] p-8 md:p-12  border border-[var(--border)]">
           {/* Review Form - Collapsible */}
           {showReviewForm && (
-            <form onSubmit={handleSubmitReview} className="mb-12 p-8 md:p-10 bg-[var(--bg)] rounded-2xl border border-[var(--border)] shadow-sm">
+            <form onSubmit={handleSubmitReview} className="mb-12 p-8 md:p-10 bg-[var(--bg)]  border border-[var(--border)] shadow-sm">
               <div className="mb-8 pb-6 border-b border-[var(--border)]">
                 <h3 className="text-2xl font-light uppercase tracking-widest mb-2" style={{ fontFamily: '"Louis George Cafe", system-ui, sans-serif' }}>
                   Write a Review
@@ -399,7 +399,7 @@ export default function ProductDetail() {
                     type="text"
                     value={newReview.name}
                     onChange={(e) => setNewReview({ ...newReview, name: e.target.value })}
-                    className="w-full px-5 py-4 border border-[var(--border)] rounded-xl focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition bg-[var(--surface)]"
+                    className="w-full px-5 py-4 border border-[var(--border)]  focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition bg-[var(--surface)]"
                     placeholder="Enter your name"
                     style={{ fontFamily: '"Louis George Cafe", system-ui, sans-serif' }}
                   />
@@ -437,7 +437,7 @@ export default function ProductDetail() {
                   <textarea
                     value={newReview.comment}
                     onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
-                    className="w-full px-5 py-4 border border-[var(--border)] rounded-xl focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition bg-[var(--surface)] h-40 resize-none"
+                    className="w-full px-5 py-4 border border-[var(--border)]  focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition bg-[var(--surface)] h-40 resize-none"
                     placeholder="Tell us about your experience with this product. What did you like or dislike?"
                     style={{ fontFamily: '"Louis George Cafe", system-ui, sans-serif' }}
                   />
@@ -450,7 +450,7 @@ export default function ProductDetail() {
                 <div className="flex gap-4 pt-4">
                   <button
                     type="submit"
-                    className="flex-1 bg-[var(--primary)] text-white font-semibold px-8 py-4 rounded-xl hover:bg-opacity-90 transition shadow-lg hover:shadow-xl"
+                    className="flex-1 bg-[var(--primary)] text-white font-semibold px-8 py-4  hover:bg-opacity-90 transition shadow-lg hover:shadow-xl"
                     style={{ fontFamily: '"Louis George Cafe", system-ui, sans-serif' }}
                   >
                     Submit Review
@@ -458,7 +458,7 @@ export default function ProductDetail() {
                   <button
                     type="button"
                     onClick={() => setShowReviewForm(false)}
-                    className="px-8 py-4 border border-[var(--border)] rounded-xl hover:border-[var(--primary)] hover:text-[var(--primary)] transition font-medium"
+                    className="px-8 py-4 border border-[var(--border)]  hover:border-[var(--primary)] hover:text-[var(--primary)] transition font-medium"
                   >
                     Cancel
                   </button>
@@ -513,9 +513,9 @@ export default function ProductDetail() {
                       return (
                         <div key={star} className="flex items-center gap-3">
                           <span className="text-sm w-6">{star}★</span>
-                          <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div className="flex-1 h-2 bg-gray-200  overflow-hidden">
                             <div
-                              className="h-full bg-yellow-600 rounded-full"
+                              className="h-full bg-yellow-600 "
                               style={{ width: `${percentage}%` }}
                             />
                           </div>
@@ -532,7 +532,7 @@ export default function ProductDetail() {
                     <div key={review.id || review._id} className="border-b border-[var(--border)] pb-10 last:border-b-0">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-full bg-[var(--primary)] text-white flex items-center justify-center text-lg font-semibold">
+                          <div className="w-12 h-12  bg-[var(--primary)] text-white flex items-center justify-center text-lg font-semibold">
                             {review.name.charAt(0).toUpperCase()}
                           </div>
                           <div>
@@ -582,7 +582,7 @@ export default function ProductDetail() {
             {/* Previous Button */}
             <button
               onClick={() => scroll('left')}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg border border-[var(--border)] flex items-center justify-center hover:bg-[var(--primary)] hover:text-white transition-colors"
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 w-12 h-12 bg-white  shadow-lg border border-[var(--border)] flex items-center justify-center hover:bg-[var(--primary)] hover:text-white transition-colors"
               style={{ marginTop: '-2rem' }}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -613,7 +613,7 @@ export default function ProductDetail() {
                 <Link
                   key={suggestedProduct.id}
                   to={`/store/${suggestedProduct.id}`}
-                  className="flex-shrink-0 w-64  bg-[var(--surface)] overflow-hidden rounded-xl hover:shadow-xl transition"
+                  className="flex-shrink-0 w-64  bg-[var(--surface)] overflow-hidden  hover:shadow-xl transition"
                   style={{ scrollSnapAlign: 'start' }}
                 >
                   <div className="h-96 bg-gray-100 overflow-hidden">
@@ -666,7 +666,7 @@ export default function ProductDetail() {
             {/* Next Button */}
             <button
               onClick={() => scroll('right')}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg border border-[var(--border)] flex items-center justify-center hover:bg-[var(--primary)] hover:text-white transition-colors"
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 w-12 h-12 bg-white  shadow-lg border border-[var(--border)] flex items-center justify-center hover:bg-[var(--primary)] hover:text-white transition-colors"
               style={{ marginTop: '-2rem' }}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -1,7 +1,7 @@
 export default function Skeleton({ className = "", height = "h-4", width = "w-full" }) {
   return (
     <div
-      className={`animate-pulse bg-gray-200 rounded ${className} ${height} ${width}`}
+      className={`animate-pulse bg-gray-200  ${className} ${height} ${width}`}
       style={{
         animation: 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'
       }}
@@ -11,7 +11,7 @@ export default function Skeleton({ className = "", height = "h-4", width = "w-fu
 
 export function ProductCardSkeleton() {
   return (
-    <div className="border border-[var(--border)] bg-[var(--surface)] overflow-hidden rounded-xl">
+    <div className="border border-[var(--border)] bg-[var(--surface)] overflow-hidden ">
       <Skeleton className="h-96 w-full" />
       <div className="p-4 space-y-3">
         <Skeleton className="h-6 w-3/4" />
@@ -28,9 +28,9 @@ export function ProductCardSkeleton() {
 
 export function CartItemSkeleton() {
   return (
-    <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4">
+    <div className="bg-[var(--surface)] border border-[var(--border)]  p-4">
       <div className="flex gap-4">
-        <Skeleton className="w-28 h-32 rounded-xl" />
+        <Skeleton className="w-28 h-32 " />
         <div className="flex-1 space-y-3">
           <Skeleton className="h-6 w-1/2" />
           <div className="flex gap-2">
@@ -39,9 +39,9 @@ export function CartItemSkeleton() {
           </div>
           <Skeleton className="h-6 w-20" />
           <div className="flex items-center gap-3">
-            <Skeleton className="w-8 h-8 rounded-full" />
+            <Skeleton className="w-8 h-8 " />
             <Skeleton className="h-5 w-8" />
-            <Skeleton className="w-8 h-8 rounded-full" />
+            <Skeleton className="w-8 h-8 " />
           </div>
           <Skeleton className="h-4 w-24" />
         </div>
@@ -57,12 +57,12 @@ export function ProductDetailSkeleton() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
         {/* Image Section */}
         <div className="space-y-4">
-          <Skeleton className="h-96 w-full rounded-2xl" />
+          <Skeleton className="h-96 w-full " />
           <div className="flex gap-4">
-            <Skeleton className="h-20 w-20 rounded-lg" />
-            <Skeleton className="h-20 w-20 rounded-lg" />
-            <Skeleton className="h-20 w-20 rounded-lg" />
-            <Skeleton className="h-20 w-20 rounded-lg" />
+            <Skeleton className="h-20 w-20 " />
+            <Skeleton className="h-20 w-20 " />
+            <Skeleton className="h-20 w-20 " />
+            <Skeleton className="h-20 w-20 " />
           </div>
         </div>
 
@@ -77,25 +77,25 @@ export function ProductDetailSkeleton() {
           <div className="space-y-4 pt-6">
             <Skeleton className="h-6 w-1/4" />
             <div className="flex gap-3">
-              <Skeleton className="h-10 w-10 rounded-full" />
-              <Skeleton className="h-10 w-10 rounded-full" />
-              <Skeleton className="h-10 w-10 rounded-full" />
-              <Skeleton className="h-10 w-10 rounded-full" />
+              <Skeleton className="h-10 w-10 " />
+              <Skeleton className="h-10 w-10 " />
+              <Skeleton className="h-10 w-10 " />
+              <Skeleton className="h-10 w-10 " />
             </div>
           </div>
 
           <div className="space-y-4 pt-6">
             <Skeleton className="h-6 w-1/4" />
             <div className="flex items-center gap-3">
-              <Skeleton className="w-10 h-10 rounded-full" />
+              <Skeleton className="w-10 h-10 " />
               <Skeleton className="h-5 w-16" />
-              <Skeleton className="w-10 h-10 rounded-full" />
+              <Skeleton className="w-10 h-10 " />
             </div>
           </div>
 
           <div className="flex gap-4 pt-6">
-            <Skeleton className="h-14 flex-1 rounded-xl" />
-            <Skeleton className="h-14 w-1/3 rounded-xl" />
+            <Skeleton className="h-14 flex-1 " />
+            <Skeleton className="h-14 w-1/3 " />
           </div>
         </div>
       </div>

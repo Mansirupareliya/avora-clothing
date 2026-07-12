@@ -1,6 +1,13 @@
 @import "tailwindcss";
 
 @font-face {
+  font-family: 'Leodarck';
+  src: url('/leodarck/Leodarck-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
   font-family: 'Louis George Cafe';
   src: url('/fonts/Louis George Cafe.ttf') format('truetype');
   font-weight: 400;
@@ -122,7 +129,7 @@ body {
 #root {
   max-width: 100%;
   margin: 0 auto;
-  text-align: center;
+  /* text-align: center; */
   border-inline: 1px solid var(--border);
   min-height: 100svh;
   display: flex;
@@ -179,20 +186,20 @@ code {
 }
 
 .product-name {
-  font-family: "agenda", Helvetica, "Helvetica Neue", sans-serif;
+  font-family: var(--heading);
   font-size: 17px;
   font-weight: 500;
   font-style: normal;
 }
 
 .logo-text {
-  font-family: 'Okaluera', 'Louis George Cafe', system-ui, sans-serif;
-  font-weight: 700;
+  font-family: 'Leodarck', serif;
+  font-weight: normal;
   font-size: 2.5rem;
 }
 
 .hero-title {
-  font-family: 'PlatNomor', 'Louis George Cafe', system-ui, sans-serif;
+  font-family: var(--heading);
   font-weight: 400;
 }
 
@@ -328,4 +335,9 @@ code {
 
 .hero-section:hover .hero-overlay {
   background: linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.5) 100%);
+}
+
+/* Product home card image zoom */
+.product-home-card:hover .product-home-img {
+  transform: scale(1.07);
 }

@@ -4,6 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductsModule } from './products.module';
 import { CartModule } from './cart.module';
 import { ReviewsModule } from './reviews.module';
+import { AuthModule } from './auth.module';
+import { ContactModule } from './contact.module';
 
 // Build TypeORM connection config based on environment
 const dbConfig = process.env.DATABASE_URL
@@ -35,6 +37,8 @@ const dbConfig = process.env.DATABASE_URL
     ProductsModule,
     CartModule,
     ReviewsModule,
+    AuthModule,
+    ContactModule,
   ],
 })
 export class AppModule {}

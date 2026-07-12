@@ -111,7 +111,7 @@ export default function Store() {
             <div className="hero-animate flex items-center gap-4 mb-6 md:mb-8">
               <div className="h-px w-12 md:w-16 bg-[var(--accent)]"></div>
               <p className="text-xs md:text-sm lg:text-base uppercase tracking-[0.2em] md:tracking-[0.4em] text-[var(--accent)] font-semibold" style={{ fontFamily: "'Louis George Cafe', system-ui, sans-serif" }}>
-                Premium Menswear Collection
+                Premium Avora Collection
               </p>
             </div>
             <h1 className="hero-animate-scale hero-text-shimmer hero-title text-5xl md:text-7xl lg:text-8xl xl:text-[10rem] font-bold text-white mb-6 md:mb-10 leading-none" style={{ lineHeight: '0.85', letterSpacing: '-0.02em' }}>
@@ -121,10 +121,10 @@ export default function Store() {
               Discover timeless elegance crafted for the modern gentleman. Premium fabrics, impeccable fit, and sophisticated style.
             </p>
             <div className="hero-animate-delay-2 flex flex-col sm:flex-row gap-4 md:gap-6">
-              <button className="px-8 py-3 md:px-10 md:py-4 bg-[var(--accent)] text-white font-semibold rounded-none hover:bg-[var(--accent)]/90 transition-all duration-300 hover:shadow-2xl hover:scale-105 transform" style={{ fontFamily: "'Louis George Cafe', system-ui, sans-serif", letterSpacing: '0.1em', textTransform: 'uppercase', fontSize: '0.65rem md:0.75rem' }}>
+              <button className="px-8 py-3 md:px-10 md:py-4 bg-[var(--accent)] text-white font-semibold  hover:bg-[var(--accent)]/90 transition-all duration-300 hover:shadow-2xl hover:scale-105 transform" style={{ fontFamily: "'Louis George Cafe', system-ui, sans-serif", letterSpacing: '0.1em', textTransform: 'uppercase', fontSize: '0.65rem md:0.75rem' }}>
                 Shop men
               </button>
-              <button className="px-8 py-3 md:px-10 md:py-4 border-2 border-white text-white font-semibold rounded-none hover:bg-white hover:text-[var(--primary)] transition-all duration-300 hover:scale-105 transform" style={{ fontFamily: "'Louis George Cafe', system-ui, sans-serif", letterSpacing: '0.1em', textTransform: 'uppercase', fontSize: '0.65rem md:0.75rem' }}>
+              <button className="px-8 py-3 md:px-10 md:py-4 border-2 border-white text-white font-semibold  hover:bg-white hover:text-[var(--primary)] transition-all duration-300 hover:scale-105 transform" style={{ fontFamily: "'Louis George Cafe', system-ui, sans-serif", letterSpacing: '0.1em', textTransform: 'uppercase', fontSize: '0.65rem md:0.75rem' }}>
                 learn more
               </button>
             </div>
@@ -240,7 +240,7 @@ export default function Store() {
                               e.preventDefault();
                               toggleLike(product.id);
                             }}
-                            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm shadow-md flex items-center justify-center hover:bg-white transition-all hover:scale-110 z-10"
+                            className="absolute top-3 right-3 w-8 h-8  bg-white/90 backdrop-blur-sm shadow-md flex items-center justify-center hover:bg-white transition-all hover:scale-110 z-10"
                           >
                             <svg
                               className={`w-4 h-4 transition-colors ${likedProducts.includes(product.id)
