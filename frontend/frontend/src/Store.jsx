@@ -4,7 +4,8 @@ import axios from "axios";
 import Footer from "./Component/Footer";
 import { ProductCardSkeleton } from "./Component/Skeleton";
 
-const API_URL = "http://localhost:3000/products";
+const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/products`;
+
 
 export default function Store() {
   const [products, setProducts] = useState([]);

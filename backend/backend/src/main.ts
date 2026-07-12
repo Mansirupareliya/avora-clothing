@@ -13,14 +13,21 @@ async function bootstrap() {
   }
 
   app.useStaticAssets(join(__dirname, '..', 'uploads'), {
-  prefix: '/uploads',
-});
+    prefix: '/uploads',
+  });
+
+  // Allow multiple origins via comma-separated CORS_ORIGIN env var
+  const allowedOrigins = (
+    process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:5175'
+  ).split(',').map((o) => o.trim());
 
   app.enableCors({
-    origin: 'http://localhost:5173',
+    origin: allowedOrigins,
     credentials: true,
   });
 
-  await app.listen(3000);
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
+  console.log(`Application is running on port ${port}`);
 }
-bootstrap();
+bootstrap();

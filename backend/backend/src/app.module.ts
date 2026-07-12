@@ -12,13 +12,18 @@ import { ReviewsModule } from './reviews.module';
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'Postgres',
-      database: 'mens',
+      url: process.env.DATABASE_URL,
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT || '5432'),
+      username: process.env.DB_USERNAME || 'postgres',
+      password: process.env.DB_PASSWORD || 'Postgres',
+      database: process.env.DB_NAME || 'mens',
       autoLoadEntities: true,
       synchronize: true,
+      // Required for Render's managed Postgres (SSL)
+      ssl: process.env.DATABASE_URL
+        ? { rejectUnauthorized: false }
+        : false,
     }),
     ProductsModule,
     CartModule,
@@ -27,4 +32,4 @@ import { ReviewsModule } from './reviews.module';
 })
 
 
-export class AppModule {}
+export class AppModule {}

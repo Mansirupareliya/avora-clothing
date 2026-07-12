@@ -5,7 +5,8 @@ import { useCart } from "./Context/CartContext";
 import Footer from "./Component/Footer";
 import { ProductDetailSkeleton, ProductCardSkeleton } from "./Component/Skeleton";
 
-const API_URL = "http://localhost:3000/products";
+const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/products`;
+
 
 export default function ProductDetail() {
   const { productId } = useParams();

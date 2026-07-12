@@ -2,7 +2,8 @@ import React, { createContext, useState, useCallback, useEffect } from 'react';
 import axios from 'axios';
 
 const CartContext = createContext();
-const CART_API = 'http://localhost:3000/cart';
+const CART_API = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/cart`;
+
 
 export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
