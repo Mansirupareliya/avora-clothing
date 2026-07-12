@@ -43,7 +43,7 @@ export default function ProductDetail() {
       try {
         const response = await axios.get(`${API_URL}/${productId}`);
         setProduct(response.data);
-        
+
         // Fetch suggested products from all products (max 10, excluding current)
         const allProducts = await axios.get(API_URL);
         const suggestedProducts = allProducts.data
@@ -97,10 +97,10 @@ export default function ProductDetail() {
 
   const savings = product.mrp && product.price ? Number(product.mrp) - Number(product.price) : 0;
   const sizes = product.sizes ? (Array.isArray(product.sizes) ? product.sizes : String(product.sizes).split(",").map((size) => size.trim())) : [];
-  
+
   // Handle multiple images - if product has images array, use it, otherwise use single imageUrl
-  const productImages = product.images && Array.isArray(product.images) && product.images.length > 0 
-    ? product.images 
+  const productImages = product.images && Array.isArray(product.images) && product.images.length > 0
+    ? product.images
     : [product.imageUrl];
 
   const handleMouseMove = (e) => {
@@ -145,14 +145,14 @@ export default function ProductDetail() {
         comment: newReview.comment,
         date: new Date().toISOString()
       };
-      
+
       // Submit to database
       await axios.post(`${API_URL}/${productId}/reviews`, review);
-      
+
       // Refresh reviews from database
       const reviewsResponse = await axios.get(`${API_URL}/${productId}/reviews`);
       setReviews(reviewsResponse.data);
-      
+
       setNewReview({ name: "", rating: 5, comment: "" });
       setShowReviewForm(false);
       alert("Review submitted successfully!");
@@ -182,11 +182,10 @@ export default function ProductDetail() {
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`w-16 h-16 lg:w-20 lg:h-20 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 ${
-                    selectedImage === index 
-                      ? 'border-[var(--accent)] scale-105' 
+                  className={`w-16 h-16 lg:w-20 lg:h-20 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 ${selectedImage === index
+                      ? 'border-[var(--accent)] scale-105'
                       : 'border-[var(--border)] hover:border-[var(--primary)]'
-                  }`}
+                    }`}
                 >
                   <img
                     src={image}
@@ -208,9 +207,8 @@ export default function ProductDetail() {
                 <img
                   src={productImages[selectedImage]}
                   alt={product.name}
-                  className={`w-full h-full object-cover transition-transform duration-300 ${
-                    isZoomed ? 'scale-150' : 'scale-100'
-                  }`}
+                  className={`w-full h-full object-cover transition-transform duration-300 ${isZoomed ? 'scale-150' : 'scale-100'
+                    }`}
                   style={{
                     transformOrigin: isZoomed ? `${mousePosition.x}% ${mousePosition.y}%` : 'center center'
                   }}
@@ -256,124 +254,123 @@ export default function ProductDetail() {
             </div>
 
             <div className="space-y-3 md:space-y-4">
-            <h3 className="text-sm font-medium text-[var(--text)]">
+              <h3 className="text-sm font-medium text-[var(--text)]">
                 Size: <span className="font-normal">Choose An Option</span>
-            </h3>
+              </h3>
 
-            <div className="flex flex-wrap gap-3 md:gap-4">
+              <div className="flex flex-wrap gap-3 md:gap-4">
                 {(sizes.length > 0 ? sizes : ["S", "M", "L", "XL"]).map((size) => (
-                <button
+                  <button
                     key={size}
                     type="button"
                     onClick={() => setSelectedSize(size)}
-                    className={`min-w-[50px] md:min-w-[60px] rounded-full border px-2 py-1 md:px-1 md:py-1 text-xs md:text-sm transition-all ${
-                    selectedSize === size
+                    className={`min-w-[50px] md:min-w-[60px] rounded-full border px-2 py-1 md:px-1 md:py-1 text-xs md:text-sm transition-all ${selectedSize === size
                         ? "bg-[var(--primary)] text-white border-[var(--primary)]"
                         : "border-gray-400 text-[var(--text)] hover:border-[var(--primary)]"
-                    }`}
-                >
+                      }`}
+                  >
                     {size}
-                </button>
+                  </button>
                 ))}
-            </div>
+              </div>
 
-            {selectedSize && (
+              {selectedSize && (
                 <p className="text-sm text-[#c86f49]">
-                Selected Size: <strong>{selectedSize}</strong>
+                  Selected Size: <strong>{selectedSize}</strong>
                 </p>
-            )}
+              )}
             </div>
 
-       <div className="space-y-4">
-            {/* Quantity + Add to Cart in same row */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="space-y-4">
+              {/* Quantity + Add to Cart in same row */}
+              <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex items-center border border-gray-300 overflow-hidden">
-                <button
+                  <button
                     type="button"
                     onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
                     className="px-3 py-2 md:px-2 md:py-1 text-lg font-semibold hover:bg-gray-100"
-                >
+                  >
                     -
-                </button>
+                  </button>
 
-                <span className="px-3 py-2 md:px-2 md:py-1 min-w-[50px] text-center">
+                  <span className="px-3 py-2 md:px-2 md:py-1 min-w-[50px] text-center">
                     {quantity}
-                </span>
+                  </span>
 
-                <button
+                  <button
                     type="button"
                     onClick={() => setQuantity((prev) => prev + 1)}
                     className="px-3 py-2 md:px-2 md:py-1 text-lg font-semibold hover:bg-gray-100"
-                >
+                  >
                     +
-                </button>
+                  </button>
                 </div>
 
-                    <button
-                    onClick={handleAddToCart}
-                    disabled={addingToCart}
-                    className="flex-1 bg-[var(--primary)] px-4 py-2 md:px-2 md:py-1 text-sm font-semibold text-white hover:bg-opacity-90 disabled:opacity-50"
-                    >
-                    {addingToCart ? "Adding..." : "Add To Cart"}
-                    </button>
-                </div>
-
-                {/* Buy Now in second row */}
                 <button
-                    className="w-full border border-[var(--border)] px-4 py-2 md:px-2 md:py-2 text-sm font-semibold text-[var(--text)] transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
+                  onClick={handleAddToCart}
+                  disabled={addingToCart}
+                  className="flex-1 bg-[var(--primary)] px-4 py-2 md:px-2 md:py-1 text-sm font-semibold text-white hover:bg-opacity-90 disabled:opacity-50"
                 >
-                    Buy Now
+                  {addingToCart ? "Adding..." : "Add To Cart"}
                 </button>
-                </div>
-                <div className="mt-4 md:mt-6 border-t border-gray-200 pt-4 space-y-3">
-                    {[
-                        {
-                        title: "Product Details",
-                        content:
-                            product.description ||
-                            "Premium quality fabric with comfortable fit and durable stitching.",
-                        },
-                        {
-                        title: "Shipping Information",
-                        content:
-                            "Orders are processed within 24-48 hours. Delivery usually takes 3-7 business days depending on your location.",
-                        },
-                        {
-                        title: "Exchange Policy",
-                        content:
-                            "Easy 7-day exchange available for size issues. Product must be unused and in original condition.",
-                        },
-                        {
-                        title: "Care Instructions",
-                        content:
-                            "Machine wash cold. Do not bleach. Iron on low heat. Wash dark colors separately.",
-                        },
-                    ].map((item, index) => (
-                        <div
-                        key={index}
-                        className=" overflow-hidden"
-                        >
-                        <button
-                            type="button"
-                            onClick={() =>
-                            setOpenAccordion(openAccordion === index ? null : index)
-                            }
-                            className="w-full flex items-center justify-between px-2 py-1 text-left font-medium"
-                        >
-                            <span>{item.title}</span>
-                            <span className="text-lg">
-                            {openAccordion === index ? "−" : "+"}
-                            </span>
-                        </button>
+              </div>
 
-                        {openAccordion === index && (
-                            <div className="px-4 pb-4 text-sm text-gray-600 leading-6">
-                            {item.content}
-                            </div>
-                        )}
-                        </div>
-                    ))}
+              {/* Buy Now in second row */}
+              <button
+                className="w-full border border-[var(--border)] px-4 py-2 md:px-2 md:py-2 text-sm font-semibold text-[var(--text)] transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
+              >
+                Buy Now
+              </button>
+            </div>
+            <div className="mt-4 md:mt-6 border-t border-gray-200 pt-4 space-y-3">
+              {[
+                {
+                  title: "Product Details",
+                  content:
+                    product.description ||
+                    "Premium quality fabric with comfortable fit and durable stitching.",
+                },
+                {
+                  title: "Shipping Information",
+                  content:
+                    "Orders are processed within 24-48 hours. Delivery usually takes 3-7 business days depending on your location.",
+                },
+                {
+                  title: "Exchange Policy",
+                  content:
+                    "Easy 7-day exchange available for size issues. Product must be unused and in original condition.",
+                },
+                {
+                  title: "Care Instructions",
+                  content:
+                    "Machine wash cold. Do not bleach. Iron on low heat. Wash dark colors separately.",
+                },
+              ].map((item, index) => (
+                <div
+                  key={index}
+                  className=" overflow-hidden"
+                >
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setOpenAccordion(openAccordion === index ? null : index)
+                    }
+                    className="w-full flex items-center justify-between px-2 py-1 text-left font-medium"
+                  >
+                    <span>{item.title}</span>
+                    <span className="text-lg">
+                      {openAccordion === index ? "−" : "+"}
+                    </span>
+                  </button>
+
+                  {openAccordion === index && (
+                    <div className="px-4 pb-4 text-sm text-gray-600 leading-6">
+                      {item.content}
                     </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -390,7 +387,7 @@ export default function ProductDetail() {
                   Share your experience with this product to help others make informed decisions.
                 </p>
               </div>
-              
+
               <div className="space-y-8">
                 {/* Name Field */}
                 <div>
@@ -516,8 +513,8 @@ export default function ProductDetail() {
                         <div key={star} className="flex items-center gap-3">
                           <span className="text-sm w-6">{star}★</span>
                           <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-yellow-600 rounded-full" 
+                            <div
+                              className="h-full bg-yellow-600 rounded-full"
                               style={{ width: `${percentage}%` }}
                             />
                           </div>
@@ -556,10 +553,10 @@ export default function ProductDetail() {
                           </div>
                         </div>
                         <span className="text-sm text-[var(--muted)]" style={{ fontFamily: '"Louis George Cafe", system-ui, sans-serif' }}>
-                          {review.date ? new Date(review.date).toLocaleDateString('en-US', { 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric' 
+                          {review.date ? new Date(review.date).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
                           }) : ""}
                         </span>
                       </div>
@@ -580,7 +577,7 @@ export default function ProductDetail() {
             <h2 className="text-2xl font-bold mb-6" style={{ fontFamily: '"Louis George Cafe", system-ui, sans-serif' }}>
               You May Also Like
             </h2>
-            
+
             {/* Previous Button */}
             <button
               onClick={() => scroll('left')}
@@ -592,10 +589,10 @@ export default function ProductDetail() {
               </svg>
             </button>
 
-            <div 
+            <div
               ref={scrollContainerRef}
               className="flex gap-6 overflow-x-auto pb-4"
-              style={{ 
+              style={{
                 scrollSnapType: 'x mandatory',
                 scrollbarWidth: 'none',
                 msOverflowStyle: 'none',
