@@ -126,6 +126,29 @@ body {
   margin: 0;
 }
 
+/* Remove Chrome, Safari, Edge, Opera number input arrows */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+/* Remove Firefox number input arrows */
+input[type="number"] {
+  -moz-appearance: textfield !important;
+}
+
+/* Custom Select resetting */
+select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+}
+
+select::-ms-expand {
+  display: none;
+}
+
 #root {
   max-width: 100%;
   margin: 0 auto;
@@ -271,70 +294,13 @@ code {
   height: 80vh;
 }
 
-.hero-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-  transform-style: preserve-3d;
-}
-
-.hero-background::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: var(--bg-image-default);
-  background-size: cover;
-  background-position: center;
-  transition: opacity 0.8s ease-out;
-  opacity: 1;
-}
-
-.hero-background::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: var(--bg-image-hover);
-  background-size: cover;
-  background-position: center;
-  transition: opacity 0.8s ease-out;
-  opacity: 0;
-}
-
-.hero-section:hover .hero-background::before {
-  opacity: 0;
-}
-
-.hero-section:hover .hero-background::after {
-  opacity: 1;
-}
-
-.hero-section:hover .hero-background {
-  transform: perspective(1000px) rotateY(2deg) rotateX(1deg) scale(1.01);
-}
-
 .hero-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.6) 100%);
-  transition: background 0.8s ease-out;
-}
-
-.hero-section:hover .hero-overlay {
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.5) 100%);
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.45) 100%);
 }
 
 /* Product home card image zoom */

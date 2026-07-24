@@ -21,7 +21,13 @@ export class Review {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   date!: Date;
 
-  @ManyToOne(() => Product)
+  @Column({ type: 'text', nullable: true })
+  adminReply?: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  replyDate?: Date;
+
+  @ManyToOne(() => Product, { onDelete: 'CASCADE', eager: true })
   @JoinColumn({ name: 'productId' })
   product!: Product;
 }

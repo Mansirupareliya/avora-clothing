@@ -26,6 +26,21 @@ export class ReviewsService {
     return this.reviewRepository.findOne({ where: { id } });
   }
 
+  async findAllGlobal(): Promise<Review[]> {
+    return this.reviewRepository.find({
+      relations: { product: true },
+      order: { date: 'DESC' },
+    });
+  }
+
+  async reply(id: number, adminReply: string): Promise<Review | null> {
+    const review = await this.reviewRepository.findOne({ where: { id } });
+    if (!review) return null;
+    review.adminReply = adminReply;
+    review.replyDate = new Date();
+    return this.reviewRepository.save(review);
+  }
+
   async remove(id: number): Promise<void> {
     await this.reviewRepository.delete(id);
   }

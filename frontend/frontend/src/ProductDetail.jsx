@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import { useCart } from "./Context/CartContext";
+import { useAuth } from "./Context/AuthContext";
 import Footer from "./Component/Footer";
 import { ProductDetailSkeleton, ProductCardSkeleton } from "./Component/Skeleton";
 
@@ -10,6 +11,7 @@ const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/prod
 
 export default function ProductDetail() {
   const { productId } = useParams();
+  const { user } = useAuth();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -26,6 +28,11 @@ export default function ProductDetail() {
   const [isZoomed, setIsZoomed] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const scrollContainerRef = useRef(null);
+
+  // Buy Now Modal State
+  const [showBuyModal, setShowBuyModal] = useState(false);
+  const [buyForm, setBuyForm] = useState({ name: "", phone: "", address: "", city: "", pincode: "", note: "", payment: "cod" });
+
 
   const scroll = (direction) => {
     if (scrollContainerRef.current) {
@@ -44,6 +51,9 @@ export default function ProductDetail() {
       try {
         const response = await axios.get(`${API_URL}/${productId}`);
         setProduct(response.data);
+
+        // Track view & click in PostgreSQL backend
+        axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/analytics/track-click/${productId}`).catch(() => {});
 
         // Fetch suggested products from all products (max 10, excluding current)
         const allProducts = await axios.get(API_URL);
@@ -132,7 +142,100 @@ export default function ProductDetail() {
     }
   };
 
+  // Buy Now handlers
+  const handleBuyNow = () => {
+    if (!selectedSize) {
+      alert("Please select a size first!");
+      return;
+    }
+    setShowBuyModal(true);
+  };
+
+  const handleWhatsAppOrder = async () => {
+    const { name, phone, address, city, pincode, note } = buyForm;
+    if (!name || !phone || !address || !city || !pincode) {
+      alert("Please fill all required fields!");
+      return;
+    }
+    const itemSubtotal = Number(product.price) * quantity;
+    const gstRate = 5;
+    const gstAmount = itemSubtotal * (gstRate / 100);
+    const itemGrandTotal = itemSubtotal + gstAmount;
+    const productSavings = product.mrp && product.price ? Number(product.mrp) - Number(product.price) : 0;
+
+    let generatedOrderId = "AVR-1001";
+    try {
+      // Save order to NestJS PostgreSQL Database & get unique sequential Order ID
+      const orderRes = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/orders/checkout`, {
+        userId: user?.id,
+        totalAmount: itemGrandTotal,
+        items: [
+          {
+            productId: product.id,
+            productName: product.name,
+            price: Number(product.price),
+            quantity,
+            size: selectedSize,
+            imageUrl: product.imageUrl,
+          }
+        ],
+        shippingAddress: {
+          fullName: name,
+          phone,
+          addressLine1: address,
+          city,
+          pincode,
+          note,
+        }
+      });
+      if (orderRes.data && orderRes.data.orderId) {
+        generatedOrderId = orderRes.data.orderId;
+        // Store in user local orders history
+        try {
+          const localOrders = JSON.parse(localStorage.getItem('avora_local_orders') || '[]');
+          localOrders.unshift(orderRes.data);
+          localStorage.setItem('avora_local_orders', JSON.stringify(localOrders));
+        } catch (e) {}
+      }
+    } catch (err) {
+      console.error("Order creation in DB error:", err);
+    }
+
+    const lines = [
+      "*AVORA - New Order!*",
+      "*Order ID: " + generatedOrderId + "*",
+      "",
+      "*Product Details*",
+      "Product: " + product.name,
+      "Category: " + (product.category || "Men's Wear"),
+      "Size: " + selectedSize,
+      "Quantity: " + quantity,
+      "Item Price: Rs." + product.price,
+      "Subtotal: Rs." + itemSubtotal.toFixed(2),
+      "GST (" + gstRate + "%): Rs." + gstAmount.toFixed(2),
+      "Total Amount (incl. GST): *Rs." + itemGrandTotal.toFixed(2) + "*",
+    ];
+    if (productSavings > 0) lines.push("Savings: Rs." + (productSavings * quantity) + " Off");
+    lines.push("", "*Customer Details*");
+    lines.push("Name: " + name);
+    lines.push("Phone: " + phone);
+    lines.push("Address: " + address);
+    lines.push("City: " + city);
+    lines.push("Pincode: " + pincode);
+    if (note) lines.push("Note: " + note);
+    const paymentLabel = buyForm.payment === "cod" ? "Cash on Delivery (COD)" : "Online Payment (QR Code)";
+    lines.push("", "Payment Method: *" + paymentLabel + "*");
+    lines.push("", "Thank you for ordering from AVORA!");
+
+    const msg = lines.join("\n");
+    const waUrl = "https://wa.me/917623876280?text=" + encodeURIComponent(msg);
+    window.open(waUrl, "_blank");
+    setShowBuyModal(false);
+    setBuyForm({ name: "", phone: "", address: "", city: "", pincode: "", note: "", payment: "cod" });
+  };
+
   const handleSubmitReview = async (e) => {
+
     e.preventDefault();
     if (!newReview.name || !newReview.comment) {
       alert("Please fill in all fields");
@@ -316,12 +419,295 @@ export default function ProductDetail() {
                 </button>
               </div>
 
-              {/* Buy Now in second row */}
+              {/* Buy Now - WhatsApp */}
               <button
-                className="w-full border border-[var(--border)] px-4 py-2 md:px-2 md:py-2 text-sm font-semibold text-[var(--text)] transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
+                onClick={handleBuyNow}
+                style={{
+                  width: "100%", background: "#25D366", border: "none",
+                  borderRadius: 6, padding: "10px 16px",
+                  color: "#fff", fontSize: 14, fontWeight: 700,
+                  cursor: "pointer", display: "flex",
+                  alignItems: "center", justifyContent: "center", gap: 8,
+                  transition: "background 0.2s, box-shadow 0.2s",
+                  boxShadow: "0 2px 8px rgba(37,211,102,0.3)",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = "#1ebe5d"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(37,211,102,0.45)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "#25D366"; e.currentTarget.style.boxShadow = "0 2px 8px rgba(37,211,102,0.3)"; }}
               >
-                Buy Now
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                  <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.116 1.524 5.847L.057 23.882a.5.5 0 0 0 .613.613l6.077-1.468A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.694-.5-5.24-1.377l-.374-.215-3.875.937.953-3.793-.234-.389A9.948 9.948 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+                </svg>
+                Buy Now via WhatsApp
               </button>
+
+              {/* Buy Now Order Modal — Login Style */}
+              {showBuyModal && (
+                <div
+                  onClick={(e) => { if (e.target === e.currentTarget) setShowBuyModal(false); }}
+                  style={{
+                    position: "fixed", inset: 0, zIndex: 9999,
+                    background: "rgba(0,0,0,0.35)",
+                    backdropFilter: "blur(6px)",
+                    WebkitBackdropFilter: "blur(6px)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    padding: "16px",
+                  }}
+                >
+                  {/* Card — same as Login */}
+                  <div style={{
+                    position: "relative",
+                    width: "100%",
+                    maxWidth: 440,
+                    maxHeight: "92vh",
+                    overflowY: "auto",
+                    scrollbarWidth: "none",
+                    background: "var(--surface)",
+                    border: "1px solid var(--border)",
+                    padding: "36px 36px 28px",
+                    boxShadow: "0 12px 40px rgba(0,0,0,0.10)",
+                    animation: "fadeInUp 0.35s ease-out both",
+                  }}>
+                    {/* Background decorative circles — same as Login */}
+                    <div style={{ position: "absolute", top: -80, right: -80, width: 280, height: 280, background: "radial-gradient(circle, rgba(200,111,73,0.08) 0%, transparent 70%)", pointerEvents: "none" }} />
+                    <div style={{ position: "absolute", bottom: -60, left: -60, width: 220, height: 220, background: "radial-gradient(circle, rgba(45,167,161,0.06) 0%, transparent 70%)", pointerEvents: "none" }} />
+
+                    {/* Close button */}
+                    <button
+                      onClick={() => setShowBuyModal(false)}
+                      style={{
+                        position: "absolute", top: 16, right: 16,
+                        background: "none", border: "1px solid var(--border)",
+                        cursor: "pointer", color: "var(--muted)",
+                        width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center",
+                        transition: "all 0.2s",
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--primary)"; e.currentTarget.style.color = "var(--primary)"; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--muted)"; }}
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+
+                    {/* AVORA Logo — same as Login */}
+                    <div style={{ textAlign: "center", marginBottom: 20 }}>
+                      <p className="logo-text" style={{ color: "var(--primary)", fontSize: "2rem", margin: 0 }}>AVORA</p>
+                      <p style={{ color: "var(--muted)", fontSize: 12, letterSpacing: "0.18em", marginTop: 4, textTransform: "uppercase", margin: "4px 0 0" }}>
+                        Premium Avora
+                      </p>
+                    </div>
+
+                    {/* Heading */}
+                    <h2 style={{ color: "var(--text)", fontSize: 22, fontWeight: 700, margin: "0 0 4px", textAlign: "center" }}>
+                      Place Your Order
+                    </h2>
+                    <p style={{ color: "var(--muted)", fontSize: 13, textAlign: "center", margin: "0 0 24px" }}>
+                      Fill in your details to order via WhatsApp
+                    </p>
+
+                    {/* Product Summary */}
+                    {(() => {
+                      const itemSubtotal = Number(product.price) * quantity;
+                      const gstRate = 5;
+                      const gstAmount = itemSubtotal * (gstRate / 100);
+                      const itemGrandTotal = itemSubtotal + gstAmount;
+                      return (
+                        <div style={{ marginBottom: 22 }}>
+                          <div style={{
+                            background: "var(--bg)", border: "1px solid var(--border)",
+                            padding: "12px 14px", marginBottom: 10,
+                            display: "flex", gap: 12, alignItems: "center",
+                          }}>
+                            {product.imageUrl && (
+                              <img src={product.imageUrl} alt={product.name} style={{ width: 56, height: 56, objectFit: "cover", flexShrink: 0, border: "1px solid var(--border)" }} />
+                            )}
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "var(--text)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{product.name}</p>
+                              <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--muted)" }}>
+                                Size: <strong style={{ color: "var(--primary)" }}>{selectedSize}</strong>
+                                <span style={{ margin: "0 8px", color: "var(--border)" }}>|</span>
+                                Qty: <strong style={{ color: "var(--text)" }}>{quantity}</strong>
+                              </p>
+                              <p style={{ margin: "4px 0 0", fontSize: 13, fontWeight: 600, color: "var(--muted)" }}>
+                                Unit Price: ₹{product.price}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* GST Breakdown */}
+                          <div style={{
+                            background: "rgba(33,45,67,0.05)",
+                            border: "1px solid var(--border)",
+                            padding: "10px 12px",
+                            display: "flex", flexDirection: "column", gap: 5,
+                          }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--muted)" }}>
+                              <span>Subtotal:</span>
+                              <span style={{ fontWeight: 600, color: "var(--text)" }}>₹{itemSubtotal.toFixed(2)}</span>
+                            </div>
+                            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--muted)" }}>
+                              <span>GST ({gstRate}%):</span>
+                              <span style={{ fontWeight: 600, color: "var(--text)" }}>+₹{gstAmount.toFixed(2)}</span>
+                            </div>
+                            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, fontWeight: 800, color: "#c86f49", paddingTop: 4, borderTop: "1px solid var(--border)" }}>
+                              <span>Total Amount (incl. GST):</span>
+                              <span>₹{itemGrandTotal.toFixed(2)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Divider */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+                      <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
+                      <span style={{ color: "var(--muted)", fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase" }}>Delivery Info</span>
+                      <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
+                    </div>
+
+                    {/* Form Fields — same input style as Login */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                      {[
+                        { key: "name", label: "Full Name", placeholder: "Raj Patel", type: "text" },
+                        { key: "phone", label: "Phone Number", placeholder: "+91 98765 43210", type: "tel" },
+                        { key: "address", label: "Full Address", placeholder: "House No., Street, Area", type: "text" },
+                        { key: "city", label: "City", placeholder: "Surat", type: "text" },
+                        { key: "pincode", label: "Pincode", placeholder: "395006", type: "text" },
+                        { key: "note", label: "Special Note (Optional)", placeholder: "Any special instructions...", type: "text" },
+                      ].map(({ key, label, placeholder, type }) => (
+                        <div key={key}>
+                          <label style={{ color: "var(--text)", fontSize: 12, fontWeight: 600, letterSpacing: "0.06em", display: "block", marginBottom: 6, textTransform: "uppercase" }}>
+                            {label} {key !== "note" && <span style={{ color: "#c86f49" }}>*</span>}
+                          </label>
+                          <input
+                            type={type}
+                            value={buyForm[key]}
+                            onChange={(e) => setBuyForm(prev => ({ ...prev, [key]: e.target.value }))}
+                            placeholder={placeholder}
+                            style={{
+                              width: "100%", boxSizing: "border-box",
+                              background: "var(--bg)",
+                              border: "1px solid var(--border)",
+                              padding: "12px 14px",
+                              color: "var(--text)", fontSize: 14, outline: "none",
+                              transition: "border 0.2s, box-shadow 0.2s",
+                              fontFamily: "var(--sans)",
+                            }}
+                            onFocus={e => { e.target.style.borderColor = "var(--primary)"; e.target.style.boxShadow = "0 0 0 3px rgba(33,45,67,0.1)"; }}
+                            onBlur={e => { e.target.style.borderColor = "var(--border)"; e.target.style.boxShadow = "none"; }}
+                          />
+                        </div>
+                      ))}
+
+                      {/* Payment Method */}
+                      <div>
+                        <label style={{ color: "var(--text)", fontSize: 12, fontWeight: 600, letterSpacing: "0.06em", display: "block", marginBottom: 10, textTransform: "uppercase" }}>
+                          Payment Method <span style={{ color: "#c86f49" }}>*</span>
+                        </label>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                          {[
+                            {
+                              value: "cod",
+                              label: "Cash on Delivery",
+                              sublabel: "Pay when you receive",
+                              icon: (
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                  <rect x="2" y="6" width="20" height="12" rx="2"/>
+                                  <circle cx="12" cy="12" r="3"/>
+                                  <path d="M6 12h.01M18 12h.01"/>
+                                </svg>
+                              ),
+                            },
+                            {
+                              value: "qr",
+                              label: "QR / Online",
+                              sublabel: "Pay via UPI / QR Code",
+                              icon: (
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                  <rect x="3" y="3" width="7" height="7" rx="1"/>
+                                  <rect x="14" y="3" width="7" height="7" rx="1"/>
+                                  <rect x="3" y="14" width="7" height="7" rx="1"/>
+                                  <path d="M14 14h2v2h-2zM18 14h3v3M21 18v3h-3M14 18h2v3"/>
+                                </svg>
+                              ),
+                            },
+                          ].map(opt => {
+                            const isSel = buyForm.payment === opt.value;
+                            return (
+                              <button
+                                key={opt.value}
+                                type="button"
+                                onClick={() => setBuyForm(prev => ({ ...prev, payment: opt.value }))}
+                                style={{
+                                  border: isSel ? "1.5px solid var(--primary)" : "1px solid var(--border)",
+                                  padding: "14px 12px",
+                                  background: isSel ? "var(--primary)" : "var(--bg)",
+                                  cursor: "pointer",
+                                  transition: "all 0.2s",
+                                  textAlign: "left",
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: 7,
+                                  position: "relative",
+                                }}
+                              >
+                                {isSel && (
+                                  <div style={{
+                                    position: "absolute", top: 8, right: 8,
+                                    width: 16, height: 16, borderRadius: "50%",
+                                    background: "#c86f49",
+                                    display: "flex", alignItems: "center", justifyContent: "center",
+                                  }}>
+                                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                  </div>
+                                )}
+                                <div style={{ color: isSel ? "rgba(255,255,255,0.7)" : "var(--muted)" }}>
+                                  {opt.icon}
+                                </div>
+                                <div style={{ fontSize: 12, fontWeight: 700, color: isSel ? "#fff" : "var(--text)", letterSpacing: "0.01em" }}>
+                                  {opt.label}
+                                </div>
+                                <div style={{ fontSize: 10, color: isSel ? "rgba(255,255,255,0.55)" : "var(--muted)", letterSpacing: "0.02em" }}>
+                                  {opt.sublabel}
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Submit Button — same as Login's Sign In */}
+                      <button
+                        onClick={handleWhatsAppOrder}
+                        style={{
+                          marginTop: 8,
+                          background: "var(--primary)",
+                          border: "none",
+                          padding: "13px",
+                          color: "var(--surface)",
+                          fontSize: 14, fontWeight: 700,
+                          letterSpacing: "0.06em",
+                          cursor: "pointer",
+                          transition: "transform 0.15s, box-shadow 0.2s",
+                          width: "100%",
+                          display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 8px 16px rgba(33,45,67,0.2)"; }}
+                        onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; }}
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                          <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.116 1.524 5.847L.057 23.882a.5.5 0 0 0 .613.613l6.077-1.468A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.694-.5-5.24-1.377l-.374-.215-3.875.937.953-3.793-.234-.389A9.948 9.948 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+                        </svg>
+                        Send Order on WhatsApp →
+                      </button>
+                    </div>
+
+                    <p style={{ textAlign: "center", color: "var(--muted)", fontSize: 12, margin: "18px 0 0" }}>
+                      Your details are safe &amp; secure
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="mt-4 md:mt-6 border-t border-gray-200 pt-4 space-y-3">
               {[

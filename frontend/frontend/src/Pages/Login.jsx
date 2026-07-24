@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../Context/AuthContext";
 
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  // Login પછી user ને ક્યાં redirect કરવો - state.from હોય તો ત્યાં, નહીં તો /store
+  const from = location.state?.from?.pathname || "/store";
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPass, setShowPass] = useState(false);
@@ -19,7 +22,7 @@ export default function Login() {
     setLoading(true);
     try {
       await login(form);
-      navigate("/store");
+      navigate(from, { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {

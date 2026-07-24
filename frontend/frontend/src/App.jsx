@@ -14,6 +14,12 @@ import Login from "./Pages/Login";
 import Signup from "./Pages/Signup";
 import Contact from "./Pages/Contact";
 import CustomerCare from "./Pages/CustomerCare";
+import AccountDashboard from "./Pages/AccountDashboard";
+import AdminReviews from "./Pages/AdminReviews";
+import LiveProductEditor from "./Pages/LiveProductEditor";
+import WebsiteDashboard from "./Pages/WebsiteDashboard";
+import AdminOrders from "./Pages/AdminOrders";
+import AdminCredits from "./Pages/AdminCredits";
 
 function App() {
   const location = useLocation();
@@ -29,6 +35,11 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/products" element={<Products />} />
+              <Route path="/admin/orders" element={<AdminOrders />} />
+              <Route path="/admin/credits" element={<AdminCredits />} />
+              <Route path="/inventory" element={<LiveProductEditor />} />
+              <Route path="/web-dashboard" element={<WebsiteDashboard />} />
+              <Route path="/reviews" element={<AdminReviews />} />
               <Route path="/store" element={<StoreLayout />}>
                 <Route index element={<Store />} />
                 <Route path="about" element={<About />} />
@@ -36,6 +47,7 @@ function App() {
                 <Route path="customercare" element={<CustomerCare />} />
                 <Route path="login" element={<Login />} />
                 <Route path="signup" element={<Signup />} />
+                <Route path="account" element={<AccountDashboard />} />
                 <Route path=":productId" element={<ProductDetail />} />
               </Route>
               <Route path="/cart" element={<CartLayout />}>

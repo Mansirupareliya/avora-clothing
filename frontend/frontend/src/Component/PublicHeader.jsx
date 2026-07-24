@@ -1,17 +1,29 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useCart } from "../Context/CartContext";
 import { useAuth } from "../Context/AuthContext";
-import { FiShoppingCart, FiUser } from "react-icons/fi";
+import { FiShoppingCart, FiUser, FiPackage, FiHeart, FiLogOut, FiMenu, FiX, FiSearch } from "react-icons/fi";
 
 export default function PublicHeader() {
   const [searchActive, setSearchActive] = useState(false);
   const [activeTab, setActiveTab] = useState("Home");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef(null);
 
   const { cartCount } = useCart();
   const { user, logout } = useAuth();
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handler = (e) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   const navItems = [
     { label: "Home", path: "/store" },
@@ -42,7 +54,7 @@ export default function PublicHeader() {
         `}</style>
         <div className="w-full">
           <p className="animate-marquee tracking-wider">
-            🚚 <span className="text-[var(--accent)]">FREE DELIVERY</span> & 25% DISCOUNT ON ₹2000+ SHOPPING! 🎉
+            🚚 <span className="text-[var(--accent)]">FREE DELIVERY</span> &amp; 25% DISCOUNT ON ₹2000+ SHOPPING! 🎉
           </p>
         </div>
       </div>
@@ -51,10 +63,9 @@ export default function PublicHeader() {
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-3">
           <div className="flex items-center justify-between gap-6">
             <div className="flex items-center gap-2 flex-shrink-0">
-
-              <div className="hidden sm:block">
-                <h6 className="logo-text font-bold text-[var(--primary)]">AVORA</h6>
-              </div>
+              <Link to="/store" style={{ textDecoration: "none" }}>
+                <h6 className="logo-text font-bold text-[var(--primary)]" style={{ margin: 0 }}>AVORA</h6>
+              </Link>
             </div>
 
             {/* Desktop Navigation */}
@@ -79,12 +90,12 @@ export default function PublicHeader() {
               <input
                 type="text"
                 placeholder="Search..."
-                className="w-full px-3 py-2  border border-[var(--border)] bg-[var(--bg)] text-xs md:text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 placeholder:text-[var(--muted)]"
+                className="w-full px-3 py-2 border border-[var(--border)] bg-[var(--bg)] text-xs md:text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 placeholder:text-[var(--muted)]"
                 onFocus={() => setSearchActive(true)}
                 onBlur={() => setSearchActive(false)}
               />
-              <button className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted)] hover:text-[var(--primary)] transition text-sm">
-                🔍
+              <button className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted)] hover:text-[var(--primary)] transition flex items-center">
+                <FiSearch size={15} />
               </button>
             </div>
 
@@ -92,44 +103,83 @@ export default function PublicHeader() {
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden text-2xl text-[var(--text)] hover:text-[var(--primary)] transition"
+                className="md:hidden text-[var(--text)] hover:text-[var(--primary)] transition"
               >
-                {mobileMenuOpen ? "✕" : "☰"}
+                {mobileMenuOpen ? <FiX size={22} /> : <FiMenu size={22} />}
               </button>
 
               {/* User Menu */}
-              <div className="relative">
+              <div className="relative" ref={userMenuRef}>
                 {user ? (
                   <button
                     onClick={() => setShowUserMenu(!showUserMenu)}
                     className="flex items-center gap-2 text-sm font-semibold hover:text-[var(--accent)] transition"
+                    style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 8px", borderRadius: 24 }}
                   >
-                    <div className="w-8 h-8 rounded-full bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center text-xs shadow-sm">
+                    <div className="w-8 h-8 rounded-full bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center text-xs shadow-sm" style={{ flexShrink: 0 }}>
                       {user.name.charAt(0).toUpperCase()}
                     </div>
+                    {/* Name shows only on md and above */}
+                    <span className="block" style={{ color: "var(--text)", fontSize: 13, fontWeight: 600, maxWidth: 90, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {user.name.split(" ")[0]}
+                    </span>
                   </button>
                 ) : (
-                  <Link to="/store/login" className="flex items-center justify-center w-8 h-8 rounded-full bg-[var(--surface)] border border-[var(--border)] text-[var(--text)] hover:text-[var(--accent)] hover:border-[var(--accent)] transition">
-                    <FiUser className="w-4 h-4" />
+                  <Link
+                    to="/store/login"
+                    className="flex items-center gap-2 text-sm font-medium hover:text-[var(--accent)] transition"
+                    style={{ textDecoration: "none", color: "var(--text)" }}
+                  >
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[var(--surface)] border border-[var(--border)] text-[var(--text)] hover:text-[var(--accent)] hover:border-[var(--accent)] transition">
+                      <FiUser size={15} />
+                    </div>
+                    <span className="block" style={{ fontSize: 13, fontWeight: 600 }}>Login</span>
                   </Link>
                 )}
 
                 {/* Dropdown Menu */}
                 {showUserMenu && user && (
-                  <div className="absolute right-0 mt-2 w-48 bg-[var(--surface)] border border-[var(--border)]  shadow-xl overflow-hidden z-50">
-                    <div className="px-4 py-3 border-b border-[var(--border)]">
-                      <p className="text-sm font-semibold text-[var(--text)] truncate">{user.name}</p>
-                      <p className="text-xs text-[var(--muted)] truncate">{user.email}</p>
+                  <div className="absolute right-0 mt-2 w-52 bg-[var(--surface)] border border-[var(--border)] shadow-xl overflow-hidden z-50" style={{ borderRadius: 8 }}>
+                    <div className="px-4 py-3 border-b border-[var(--border)]" style={{ background: "var(--primary)" }}>
+                      <p className="text-sm font-semibold truncate" style={{ color: "#fff" }}>{user.name}</p>
+                      <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.6)" }}>{user.email}</p>
                     </div>
-                    <button
-                      onClick={() => {
-                        logout();
-                        setShowUserMenu(false);
-                      }}
-                      className="w-full text-left px-4 py-3 text-sm text-[var(--accent)] hover:bg-[var(--bg)] font-medium transition"
+                    <Link
+                      to="/store/account"
+                      onClick={() => setShowUserMenu(false)}
+                      className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition hover:bg-[var(--bg)]"
+                      style={{ color: "var(--text)", textDecoration: "none" }}
+                      state={{ section: "profile" }}
                     >
-                      Sign Out
-                    </button>
+                      <FiUser size={14} /> My Account
+                    </Link>
+                    <Link
+                      to="/store/account"
+                      onClick={() => setShowUserMenu(false)}
+                      className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition hover:bg-[var(--bg)]"
+                      style={{ color: "var(--text)", textDecoration: "none" }}
+                      state={{ section: "orders" }}
+                    >
+                      <FiPackage size={14} /> My Orders
+                    </Link>
+                    <Link
+                      to="/store/account"
+                      onClick={() => setShowUserMenu(false)}
+                      className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition hover:bg-[var(--bg)]"
+                      style={{ color: "var(--text)", textDecoration: "none" }}
+                      state={{ section: "wishlist" }}
+                    >
+                      <FiHeart size={14} /> My Wishlist
+                    </Link>
+                    <div className="border-t border-[var(--border)]">
+                      <button
+                        onClick={() => { logout(); setShowUserMenu(false); }}
+                        className="flex items-center gap-3 w-full text-left px-4 py-3 text-sm font-medium transition hover:bg-[var(--bg)]"
+                        style={{ color: "#ef4444" }}
+                      >
+                        <FiLogOut size={14} /> Sign Out
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -173,10 +223,10 @@ export default function PublicHeader() {
                 <input
                   type="text"
                   placeholder="Search..."
-                  className="w-full px-3 py-2  border border-[var(--border)] bg-[var(--bg)] text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 placeholder:text-[var(--muted)]"
+                  className="w-full px-3 py-2 border border-[var(--border)] bg-[var(--bg)] text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 placeholder:text-[var(--muted)]"
                 />
-                <button className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted)] hover:text-[var(--primary)] transition text-sm">
-                  🔍
+                <button className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted)] hover:text-[var(--primary)] transition flex items-center">
+                  <FiSearch size={15} />
                 </button>
               </div>
             </div>

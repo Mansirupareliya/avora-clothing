@@ -6,6 +6,14 @@ import { CartModule } from './cart.module';
 import { ReviewsModule } from './reviews.module';
 import { AuthModule } from './auth.module';
 import { ContactModule } from './contact.module';
+import { AddressModule } from './address.module';
+import { OrdersModule } from './orders.module';
+import { ReturnsModule } from './returns.module';
+import { WishlistModule } from './wishlist.module';
+import { UserModule } from './user.module';
+import { AnalyticsModule } from './analytics.module';
+
+import { ShoppingCreditsModule } from './shopping-credits.module';
 
 // Build TypeORM connection config based on environment
 const dbConfig = process.env.DATABASE_URL
@@ -39,6 +47,13 @@ const dbConfig = process.env.DATABASE_URL
     ReviewsModule,
     AuthModule,
     ContactModule,
+    AddressModule,
+    OrdersModule,
+    ReturnsModule,
+    WishlistModule,
+    UserModule,
+    AnalyticsModule,
+    ShoppingCreditsModule,
   ],
 })
 export class AppModule {}

@@ -19,7 +19,6 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(loadUser);
 
   useEffect(() => {
-    // Automatically attach token to axios requests if it exists
     const token = localStorage.getItem(TOKEN_KEY);
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -30,7 +29,6 @@ export function AuthProvider({ children }) {
     try {
       const response = await axios.post(`${API_URL}/auth/signup`, { name, email, password });
       const { access_token, user: newUser } = response.data;
-      
       localStorage.setItem(TOKEN_KEY, access_token);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newUser));
       axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
@@ -44,7 +42,6 @@ export function AuthProvider({ children }) {
     try {
       const response = await axios.post(`${API_URL}/auth/login`, { email, password });
       const { access_token, user: loggedInUser } = response.data;
-      
       localStorage.setItem(TOKEN_KEY, access_token);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(loggedInUser));
       axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
@@ -61,8 +58,14 @@ export function AuthProvider({ children }) {
     setUser(null);
   }, []);
 
+  const updateUser = useCallback((updatedData) => {
+    const merged = { ...loadUser(), ...updatedData };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+    setUser(merged);
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, signup, login, logout }}>
+    <AuthContext.Provider value={{ user, signup, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

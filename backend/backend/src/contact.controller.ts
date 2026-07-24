@@ -1,12 +1,11 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 @Controller('contact')
 export class ContactController {
   @Post()
   async submitContact(@Body() body: any) {
+    const resend = new Resend(process.env.RESEND_API_KEY);
     const { name, email, subject, orderNumber, message } = body;
     
     await resend.emails.send({

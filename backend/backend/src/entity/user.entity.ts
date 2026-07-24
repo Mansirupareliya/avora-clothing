@@ -14,6 +14,9 @@ export class User {
   @Column()
   passwordHash: string;
 
+  @Column({ length: 20, nullable: true })
+  phone?: string;
+
   @CreateDateColumn()
   createdAt: Date;
 }

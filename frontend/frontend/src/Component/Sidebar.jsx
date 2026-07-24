@@ -27,15 +27,50 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className="px-3 mt-6 space-y-1">
-        <NavLink to="/" className={menuClass}>
+        <NavLink to="/" end className={menuClass}>
           <span className="text-base">🏠</span>
           <span>Dashboard</span>
         </NavLink>
 
         <NavLink to="/products" className={menuClass}>
           <span className="text-base">📦</span>
-          <span>Products</span>
+          <span>Listed Products</span>
         </NavLink>
+
+        <NavLink to="/admin/orders" className={menuClass}>
+          <span className="text-base">🛒</span>
+          <span>Customer Orders</span>
+        </NavLink>
+
+        <NavLink to="/admin/credits" className={menuClass}>
+          <span className="text-base">🎁</span>
+          <span>Shopping Credits</span>
+        </NavLink>
+
+        <NavLink to="/inventory" className={menuClass}>
+          <span className="text-base">⚡</span>
+          <span>Live Price &amp; Editor</span>
+        </NavLink>
+
+        <NavLink to="/web-dashboard" className={menuClass}>
+          <span className="text-base">🌐</span>
+          <span>Website Dashboard</span>
+        </NavLink>
+
+        <NavLink to="/reviews" className={menuClass}>
+          <span className="text-base">💬</span>
+          <span>Reviews &amp; Comments</span>
+        </NavLink>
+
+        <a
+          href="/store"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 px-4 py-3 transition text-sm font-medium text-[var(--muted)] hover:bg-[var(--surface)] hover:text-[var(--primary)]"
+        >
+          <span className="text-base">🛍️</span>
+          <span>View Store Front ↗</span>
+        </a>
       </nav>
 
       {/* Footer */}

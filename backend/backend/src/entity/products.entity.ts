@@ -31,4 +31,13 @@ export class Product {
 
   @Column('simple-array', { nullable: true })
   images?: string[];
+
+  @Column({ type: 'int', default: 0 })
+  views!: number;
+
+  @Column({ type: 'int', default: 0 })
+  clicks!: number;
+
+  @Column({ type: 'int', default: 0 })
+  ordersCount!: number;
 }

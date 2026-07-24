@@ -1,8 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { AppModule } from './app.module';
+import { AppModule } from './app.module.js';
 import { join } from 'path';
 import { existsSync, mkdirSync } from 'fs';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -38,8 +39,20 @@ async function bootstrap() {
     credentials: true,
   });
 
+  // ── Swagger UI ────────────────────────────────────────────────────────────
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('AVORA API')
+    .setDescription('All backend routes for the AVORA menswear store')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('api', app, document);
+  // ─────────────────────────────────────────────────────────────────────────
+
   const port = process.env.PORT || 3000;
   await app.listen(port);
-  console.log(`Application is running on port ${port}`);
+  console.log(`\n🚀 Server running at: http://localhost:${port}`);
+  console.log(`📖 Swagger UI:        http://localhost:${port}/api\n`);
 }
 bootstrap();
