@@ -27,7 +27,7 @@ async function bootstrap() {
       // Allow requests with no origin (curl, Postman, server-to-server)
       if (!origin) return callback(null, true);
       // Allow any *.netlify.app subdomain automatically
-      if (/^https:\/\/[a-z0-9-]+\.netlify\.app$/.test(origin)) {
+      if (/^https:\/\/[a-z0-9-]+\.(netlify|vercel)\.app$/.test(origin)) {
         return callback(null, true);
       }
       // Allow explicitly listed origins
