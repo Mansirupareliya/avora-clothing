@@ -119,8 +119,8 @@ export default function PublicHeader() {
                     <div className="w-8 h-8 rounded-full bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center text-xs shadow-sm" style={{ flexShrink: 0 }}>
                       {user.name.charAt(0).toUpperCase()}
                     </div>
-                    {/* Name shows only on md and above */}
-                    <span className="block" style={{ color: "var(--text)", fontSize: 13, fontWeight: 600, maxWidth: 90, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {/* Name hidden on mobile, visible on md+ */}
+                    <span className="hidden md:block" style={{ color: "var(--text)", fontSize: 13, fontWeight: 600, maxWidth: 90, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {user.name.split(" ")[0]}
                     </span>
                   </button>
@@ -154,6 +154,30 @@ export default function PublicHeader() {
                       <FiUser size={14} /> My Account
                     </Link>
                     <Link
+                      to="/cart"
+                      onClick={() => setShowUserMenu(false)}
+                      className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition hover:bg-[var(--bg)]"
+                      style={{ color: "var(--text)", textDecoration: "none" }}
+                    >
+                      <FiShoppingCart size={14} />
+                      <span>My Cart</span>
+                      {cartCount > 0 && (
+                        <span style={{
+                          marginLeft: "auto",
+                          background: "var(--accent)",
+                          color: "#fff",
+                          fontSize: 10,
+                          fontWeight: 700,
+                          borderRadius: 99,
+                          padding: "1px 7px",
+                          minWidth: 18,
+                          textAlign: "center",
+                        }}>
+                          {cartCount}
+                        </span>
+                      )}
+                    </Link>
+                    <Link
                       to="/store/account"
                       onClick={() => setShowUserMenu(false)}
                       className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition hover:bg-[var(--bg)]"
@@ -184,17 +208,6 @@ export default function PublicHeader() {
                 )}
               </div>
 
-              <Link
-                to="/cart"
-                className="relative flex items-center justify-center text-[var(--text)] hover:text-[var(--accent)] transition"
-              >
-                <FiShoppingCart className="w-5 h-5" />
-                {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-[var(--accent)] text-[var(--surface)] text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                    {cartCount}
-                  </span>
-                )}
-              </Link>
             </div>
           </div>
 

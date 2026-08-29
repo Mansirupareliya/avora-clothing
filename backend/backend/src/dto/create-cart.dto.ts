@@ -4,6 +4,7 @@ export class CreateCartDto {
   price: number;
   quantity: number;
   size?: string;
+  color?: string;
   imageUrl?: string;
   category?: string;
 }
@@ -11,4 +12,5 @@ export class CreateCartDto {
 export class UpdateCartDto {
   quantity?: number;
   size?: string;
+  color?: string;
 }

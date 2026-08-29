@@ -11,10 +11,10 @@ export class CartService {
     private cartRepository: Repository<Cart>,
   ) {}
 
-  async addToCart(createCartDto: CreateCartDto): Promise<Cart> {
+  async addToCart(userId: string, createCartDto: CreateCartDto): Promise<Cart> {
     // Check if product with same size already exists in cart
     // Build where clause without assigning null to 'size' (TypeORM expects string|undefined)
-    const where: any = { productId: createCartDto.productId };
+    const where: any = { userId, productId: createCartDto.productId };
     if (createCartDto.size) where.size = createCartDto.size;
 
     const existingItem = await this.cartRepository.findOne({ where });
@@ -26,36 +26,37 @@ export class CartService {
     }
 
     // Create new cart item
-    const cartItem = this.cartRepository.create(createCartDto);
+    const cartItem = this.cartRepository.create({ ...createCartDto, userId });
     return this.cartRepository.save(cartItem);
   }
 
-  async getCart(): Promise<Cart[]> {
+  async getCart(userId: string): Promise<Cart[]> {
     return this.cartRepository.find({
+      where: { userId },
       order: { createdAt: 'DESC' },
     });
   }
 
-  async getCartItem(id: string): Promise<Cart> {
-    const item = await this.cartRepository.findOne({ where: { id } });
+  async getCartItem(userId: string, id: string): Promise<Cart> {
+    const item = await this.cartRepository.findOne({ where: { id, userId } });
     if (!item) {
       throw new NotFoundException('Cart item not found');
     }
     return item;
   }
 
-  async updateCart(id: string, updateCartDto: UpdateCartDto): Promise<Cart> {
-    const item = await this.getCartItem(id);
+  async updateCart(userId: string, id: string, updateCartDto: UpdateCartDto): Promise<Cart> {
+    const item = await this.getCartItem(userId, id);
     Object.assign(item, updateCartDto);
     return this.cartRepository.save(item);
   }
 
-  async removeFromCart(id: string): Promise<void> {
-    const item = await this.getCartItem(id);
+  async removeFromCart(userId: string, id: string): Promise<void> {
+    const item = await this.getCartItem(userId, id);
     await this.cartRepository.remove(item);
   }
 
-  async clearCart(): Promise<void> {
-    await this.cartRepository.clear();
+  async clearCart(userId: string): Promise<void> {
+    await this.cartRepository.delete({ userId });
   }
 }

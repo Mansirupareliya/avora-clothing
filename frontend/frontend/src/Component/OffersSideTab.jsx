@@ -34,7 +34,13 @@ export default function OffersSideTab() {
 
   useEffect(() => {
     fetchOffers();
+    // Poll every 30 seconds so admin changes reflect immediately on frontend
+    const interval = setInterval(fetchOffers, 30000);
+    return () => clearInterval(interval);
   }, [user]);
+
+  // Hide the entire tab if offer is disabled by admin
+  if (!promoConfig.isEnabled) return null;
 
   return (
     <>

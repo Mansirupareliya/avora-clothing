@@ -14,6 +14,7 @@ import { UserModule } from './user.module';
 import { AnalyticsModule } from './analytics.module';
 
 import { ShoppingCreditsModule } from './shopping-credits.module';
+import { CouponModule } from './coupon.module';
 
 // Build TypeORM connection config based on environment
 const dbConfig = process.env.DATABASE_URL
@@ -54,6 +55,7 @@ const dbConfig = process.env.DATABASE_URL
     UserModule,
     AnalyticsModule,
     ShoppingCreditsModule,
+    CouponModule,
   ],
 })
 export class AppModule {}

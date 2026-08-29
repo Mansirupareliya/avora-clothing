@@ -135,6 +135,148 @@ function CustomThemeDropdown({ options, value, onChange, highlight = false }) {
   );
 }
 
+// ─── Price Range Slider with Dots ───────────────────────────────────────────
+function PriceRangeSlider({ min, max, minVal, maxVal, onMinChange, onMaxChange }) {
+  const range = max - min || 1;
+  const DOT_COUNT = 6;
+  const dots = Array.from({ length: DOT_COUNT }, (_, i) =>
+    Math.round(min + (i / (DOT_COUNT - 1)) * range)
+  );
+
+  const minPct = ((minVal - min) / range) * 100;
+  const maxPct = ((maxVal - min) / range) * 100;
+
+  const clamp = (val, lo, hi) => Math.min(Math.max(val, lo), hi);
+
+  const handleMinChange = (e) => {
+    const val = clamp(Number(e.target.value), min, maxVal - 1);
+    onMinChange(val);
+  };
+  const handleMaxChange = (e) => {
+    const val = clamp(Number(e.target.value), minVal + 1, max);
+    onMaxChange(val);
+  };
+
+  const handleDotClick = (dotVal) => {
+    const distToMin = Math.abs(dotVal - minVal);
+    const distToMax = Math.abs(dotVal - maxVal);
+    if (distToMin <= distToMax) {
+      if (dotVal < maxVal) onMinChange(dotVal);
+    } else {
+      if (dotVal > minVal) onMaxChange(dotVal);
+    }
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 220 }}>
+      {/* Label + values */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span style={{
+          color: "var(--muted)", fontWeight: 600, fontSize: 11,
+          textTransform: "uppercase", letterSpacing: "0.04em"
+        }}>Price:</span>
+        <span style={{
+          fontSize: 11, fontWeight: 700, color: "var(--primary)",
+          background: "rgba(33,45,67,0.07)", padding: "2px 8px", borderRadius: 2,
+          letterSpacing: "0.02em",
+        }}>
+          ₹{minVal.toLocaleString("en-IN")} — ₹{maxVal.toLocaleString("en-IN")}
+        </span>
+      </div>
+
+      {/* Track + thumbs */}
+      <div style={{ position: "relative", height: 20, display: "flex", alignItems: "center" }}>
+        {/* Background track */}
+        <div style={{
+          position: "absolute", left: 0, right: 0, height: 3,
+          background: "var(--border)", borderRadius: 2,
+        }} />
+
+        {/* Active fill between thumbs */}
+        <div style={{
+          position: "absolute",
+          left: `${minPct}%`,
+          width: `${maxPct - minPct}%`,
+          height: 3,
+          background: "var(--primary)",
+          borderRadius: 2,
+          transition: "left 0.08s, width 0.08s",
+        }} />
+
+        {/* Dots on the track */}
+        {dots.map((dotVal, i) => {
+          const pct = ((dotVal - min) / range) * 100;
+          const active = dotVal >= minVal && dotVal <= maxVal;
+          return (
+            <div
+              key={i}
+              onClick={() => handleDotClick(dotVal)}
+              title={`₹${dotVal.toLocaleString("en-IN")}`}
+              style={{
+                position: "absolute",
+                left: `calc(${pct}% - 5px)`,
+                width: 10, height: 10,
+                borderRadius: "50%",
+                background: active ? "var(--primary)" : "var(--border)",
+                border: `2px solid ${active ? "var(--primary)" : "var(--muted)"}`,
+                cursor: "pointer",
+                transition: "background 0.15s, transform 0.15s, border-color 0.15s",
+                zIndex: 2,
+                boxShadow: active ? "0 0 0 3px rgba(33,45,67,0.15)" : "none",
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = "scale(1.4)";
+                e.currentTarget.style.boxShadow = "0 0 0 4px rgba(33,45,67,0.2)";
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = "scale(1)";
+                e.currentTarget.style.boxShadow = active ? "0 0 0 3px rgba(33,45,67,0.15)" : "none";
+              }}
+            />
+          );
+        })}
+
+        {/* Min thumb */}
+        <input
+          type="range"
+          className="price-thumb"
+          min={min}
+          max={max}
+          value={minVal}
+          onChange={handleMinChange}
+          style={{
+            position: "absolute", width: "100%",
+            background: "transparent", zIndex: 4, height: 20,
+          }}
+        />
+        {/* Max thumb */}
+        <input
+          type="range"
+          className="price-thumb"
+          min={min}
+          max={max}
+          value={maxVal}
+          onChange={handleMaxChange}
+          style={{
+            position: "absolute", width: "100%",
+            background: "transparent", zIndex: 4, height: 20,
+          }}
+        />
+      </div>
+
+      {/* Min / Max labels */}
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <span style={{ fontSize: 10, color: "var(--muted)", fontWeight: 500 }}>
+          ₹{min.toLocaleString("en-IN")}
+        </span>
+        <span style={{ fontSize: 10, color: "var(--muted)", fontWeight: 500 }}>
+          ₹{max.toLocaleString("en-IN")}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 
 export default function Store() {
   const { user } = useAuth();
@@ -302,26 +444,26 @@ export default function Store() {
 
         <div className="hero-overlay"></div>
 
-        <div className="relative max-w-7xl mx-auto px-4 md:px-8 py-20 md:py-32 lg:py-48 z-10">
+        <div className="relative max-w-7xl mx-auto px-4 md:px-8 py-10 md:py-32 lg:py-48 z-10" style={{ paddingTop: 'clamp(40px, 12vw, 192px)', paddingBottom: 'clamp(40px, 12vw, 192px)' }}>
           <div className="max-w-4xl">
-            <div className="hero-animate flex items-center gap-4 mb-6 md:mb-8">
-              <div className="h-px w-12 md:w-16 bg-[var(--accent)]"></div>
-              <p className="text-xs md:text-sm lg:text-base uppercase tracking-[0.2em] md:tracking-[0.4em] text-[var(--accent)] font-semibold" style={{ fontFamily: "'Louis George Cafe', system-ui, sans-serif" }}>
+            <div className="hero-animate flex items-center gap-3 mb-4 md:mb-8">
+              <div className="h-px w-8 md:w-16 bg-[var(--accent)]"></div>
+              <p className="text-[10px] md:text-sm lg:text-base uppercase tracking-[0.15em] md:tracking-[0.4em] text-[var(--accent)] font-semibold" style={{ fontFamily: "'Louis George Cafe', system-ui, sans-serif" }}>
                 Premium Avora Collection
               </p>
             </div>
-            <h1 className="hero-animate-scale hero-text-shimmer hero-title text-5xl md:text-7xl lg:text-8xl xl:text-[10rem] font-bold text-white mb-6 md:mb-10 leading-none" style={{ lineHeight: '0.85', letterSpacing: '-0.02em' }}>
+            <h1 className="hero-animate-scale hero-text-shimmer hero-title font-bold text-white mb-4 md:mb-10 leading-none" style={{ fontSize: 'clamp(3rem, 15vw, 10rem)', lineHeight: '0.85', letterSpacing: '-0.02em' }}>
               AVORA
             </h1>
-            <p className="hero-animate-delay-1 text-base md:text-xl lg:text-3xl text-white/95 max-w-2xl mb-8 md:mb-14 font-light leading-relaxed" style={{ fontFamily: "'Louis George Cafe', system-ui, sans-serif", letterSpacing: '0.02em', lineHeight: '1.6' }}>
-              Discover timeless elegance crafted for the modern gentleman. Premium fabrics, impeccable fit, and sophisticated style.
+            <p className="hero-animate-delay-1 text-white/90 max-w-2xl mb-6 md:mb-14 font-light leading-relaxed" style={{ fontFamily: "'Louis George Cafe', system-ui, sans-serif", fontSize: 'clamp(0.8rem, 3vw, 1.875rem)', letterSpacing: '0.02em', lineHeight: '1.6' }}>
+              Discover timeless elegance crafted for the modern gentleman.
             </p>
-            <div className="hero-animate-delay-2 flex flex-col sm:flex-row gap-4 md:gap-6">
-              <button className="px-8 py-3 md:px-10 md:py-4 bg-[var(--accent)] text-white font-semibold  hover:bg-[var(--accent)]/90 transition-all duration-300 hover:shadow-2xl hover:scale-105 transform" style={{ fontFamily: "'Louis George Cafe', system-ui, sans-serif", letterSpacing: '0.1em', textTransform: 'uppercase', fontSize: '0.65rem md:0.75rem' }}>
+            <div className="hero-animate-delay-2 flex flex-row gap-3 md:gap-6">
+              <button className="px-5 py-2.5 md:px-10 md:py-4 bg-[var(--accent)] text-white font-semibold hover:bg-[var(--accent)]/90 transition-all duration-300 hover:shadow-2xl hover:scale-105 transform text-xs md:text-sm" style={{ fontFamily: "'Louis George Cafe', system-ui, sans-serif", letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                 Shop men
               </button>
-              <button className="px-8 py-3 md:px-10 md:py-4 border-2 border-white text-white font-semibold  hover:bg-white hover:text-[var(--primary)] transition-all duration-300 hover:scale-105 transform" style={{ fontFamily: "'Louis George Cafe', system-ui, sans-serif", letterSpacing: '0.1em', textTransform: 'uppercase', fontSize: '0.65rem md:0.75rem' }}>
-                learn more
+              <button className="px-5 py-2.5 md:px-10 md:py-4 border-2 border-white text-white font-semibold hover:bg-white hover:text-[var(--primary)] transition-all duration-300 hover:scale-105 transform text-xs md:text-sm" style={{ fontFamily: "'Louis George Cafe', system-ui, sans-serif", letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                Learn more
               </button>
             </div>
           </div>
@@ -352,200 +494,153 @@ export default function Store() {
 
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-6 md:py-8">
         <div className="space-y-4">
-          {/* Theme-Matched Filter & Sort Bar */}
+          {/* Theme-Matched Filter & Sort Bar — single line */}
           <div style={{
             background: "var(--surface)",
             border: "1px solid var(--border)",
             borderRadius: 0,
-            padding: "16px 20px",
+            padding: "10px 16px",
             boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
-            marginBottom: 24,
+            marginBottom: 20,
+            overflowX: "auto",
+            WebkitOverflowScrolling: "touch",
           }}>
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              
-              {/* Filter Controls Group */}
-              <div className="flex flex-wrap items-center gap-3 md:gap-4 text-xs">
-                
-                {/* Header Badge */}
-                <div style={{
-                  display: "flex", alignItems: "center", gap: 6,
-                  background: "rgba(33,45,67,0.06)",
-                  border: "1px solid var(--border)",
-                  borderRadius: 0, padding: "6px 12px",
-                  color: "var(--primary)", fontWeight: 700,
-                  letterSpacing: "0.05em", textTransform: "uppercase", fontSize: 11,
-                }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
-                  </svg>
-                  <span>Filters</span>
-                </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "nowrap", minWidth: "max-content" }}>
 
-                {/* Category Dropdown */}
-                <div className="flex items-center gap-2">
-                  <span style={{ color: "var(--muted)", fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.04em" }}>Category:</span>
-                  <CustomThemeDropdown
-                    options={categories.map((cat) => ({ value: cat, label: cat }))}
-                    value={selectedCategory}
-                    onChange={(val) => setSelectedCategory(val)}
-                  />
-                </div>
-
-                {/* Price Range */}
-                <div className="flex items-center gap-2">
-                  <span style={{ color: "var(--muted)", fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.04em" }}>Price:</span>
-                  <div className="flex items-center gap-1.5">
-                    <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-                      <span style={{ position: "absolute", left: 8, color: "var(--muted)", fontSize: 11, pointerEvents: "none" }}>₹</span>
-                      <input
-                        type="number"
-                        value={minPrice}
-                        onChange={(e) => setMinPrice(Number(e.target.value))}
-                        placeholder="Min"
-                        style={{
-                          background: "var(--bg)",
-                          border: "1px solid var(--border)",
-                          borderRadius: 0,
-                          padding: "7px 8px 7px 20px",
-                          color: "var(--text)",
-                          fontSize: 12,
-                          fontWeight: 600,
-                          width: 68,
-                          outline: "none",
-                          transition: "all 0.2s",
-                        }}
-                        onFocus={e => e.target.style.borderColor = "var(--primary)"}
-                        onBlur={e => e.target.style.borderColor = "var(--border)"}
-                      />
-                    </div>
-                    <span style={{ color: "var(--muted)", fontSize: 12 }}>–</span>
-                    <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-                      <span style={{ position: "absolute", left: 8, color: "var(--muted)", fontSize: 11, pointerEvents: "none" }}>₹</span>
-                      <input
-                        type="number"
-                        value={maxPrice}
-                        onChange={(e) => setMaxPrice(Number(e.target.value))}
-                        placeholder="Max"
-                        style={{
-                          background: "var(--bg)",
-                          border: "1px solid var(--border)",
-                          borderRadius: 0,
-                          padding: "7px 8px 7px 20px",
-                          color: "var(--text)",
-                          fontSize: 12,
-                          fontWeight: 600,
-                          width: 68,
-                          outline: "none",
-                          transition: "all 0.2s",
-                        }}
-                        onFocus={e => e.target.style.borderColor = "var(--primary)"}
-                        onBlur={e => e.target.style.borderColor = "var(--border)"}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Discount Dropdown */}
-                <div className="flex items-center gap-2">
-                  <span style={{ color: "var(--muted)", fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.04em" }}>Discount:</span>
-                  <CustomThemeDropdown
-                    options={[
-                      { value: "", label: "All Discounts" },
-                      { value: "20", label: "20%+ Off" },
-                      { value: "40", label: "40%+ Off" },
-                      { value: "60", label: "60%+ Off" },
-                    ]}
-                    value={selectedDiscounts.length > 0 ? String(selectedDiscounts[0]) : ""}
-                    onChange={(val) => setSelectedDiscounts(val ? [Number(val)] : [])}
-                  />
-                </div>
-
+              {/* Category Dropdown */}
+              <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                <span style={{ color: "var(--muted)", fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.04em", whiteSpace: "nowrap" }}>Category:</span>
+                <CustomThemeDropdown
+                  options={categories.map((cat) => ({ value: cat, label: cat }))}
+                  value={selectedCategory}
+                  onChange={(val) => setSelectedCategory(val)}
+                />
               </div>
 
-              {/* Right Side: Sort + Reset */}
-              <div className="flex items-center gap-3 text-xs ml-auto">
-                
-                {/* Sort Dropdown */}
-                <div className="flex items-center gap-2">
-                  <span style={{ color: "var(--muted)", fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.04em" }}>Sort:</span>
-                  <CustomThemeDropdown
-                    highlight={true}
-                    options={[
-                      { value: "latest", label: "Latest Arrival" },
-                      { value: "price-low", label: "Price: Low to High" },
-                      { value: "price-high", label: "Price: High to Low" },
-                      { value: "discount", label: "Best Discount" },
-                    ]}
-                    value={sortBy}
-                    onChange={(val) => setSortBy(val)}
-                  />
-                </div>
+              {/* Divider */}
+              <div style={{ width: 1, height: 20, background: "var(--border)", flexShrink: 0 }} />
 
-                {/* Reset Button (If active filters) */}
-                {(selectedCategory !== "All" || minPrice > priceMinBound || maxPrice < priceMaxBound || selectedDiscounts.length > 0 || sortBy !== "latest") && (
-                  <button
-                    onClick={() => {
-                      setSelectedCategory("All");
-                      setMinPrice(priceMinBound);
-                      setMaxPrice(priceMaxBound);
-                      setSelectedDiscounts([]);
-                      setSortBy("latest");
-                    }}
-                    style={{
-                      background: "rgba(200,111,73,0.1)",
-                      border: "1px solid rgba(200,111,73,0.3)",
-                      borderRadius: 0,
-                      padding: "6px 12px",
-                      color: "#c86f49",
-                      fontSize: 11,
-                      fontWeight: 700,
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                      transition: "all 0.2s",
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.background = "rgba(200,111,73,0.2)"}
-                    onMouseLeave={e => e.currentTarget.style.background = "rgba(200,111,73,0.1)"}
-                  >
-                    <span>Reset</span>
-                    <span>✕</span>
-                  </button>
-                )}
-
+              {/* Price Range Slider */}
+              <div style={{ flexShrink: 0 }}>
+                <PriceRangeSlider
+                  min={priceMinBound}
+                  max={priceMaxBound}
+                  minVal={minPrice}
+                  maxVal={maxPrice}
+                  onMinChange={setMinPrice}
+                  onMaxChange={setMaxPrice}
+                />
               </div>
+
+              {/* Divider — hidden on mobile */}
+              <div className="hidden md:block" style={{ width: 1, height: 20, background: "var(--border)", flexShrink: 0 }} />
+
+              {/* Discount Dropdown — hidden on mobile */}
+              <div className="hidden md:flex" style={{ alignItems: "center", gap: 6, flexShrink: 0 }}>
+                <span style={{ color: "var(--muted)", fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.04em", whiteSpace: "nowrap" }}>Discount:</span>
+                <CustomThemeDropdown
+                  options={[
+                    { value: "", label: "All Discounts" },
+                    { value: "20", label: "20%+ Off" },
+                    { value: "40", label: "40%+ Off" },
+                    { value: "60", label: "60%+ Off" },
+                  ]}
+                  value={selectedDiscounts.length > 0 ? String(selectedDiscounts[0]) : ""}
+                  onChange={(val) => setSelectedDiscounts(val ? [Number(val)] : [])}
+                />
+              </div>
+
+              {/* Spacer */}
+              <div style={{ flex: 1, minWidth: 16 }} />
+
+              {/* Sort Dropdown */}
+              <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                <span style={{ color: "var(--muted)", fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.04em", whiteSpace: "nowrap" }}>Sort:</span>
+                <CustomThemeDropdown
+                  highlight={true}
+                  options={[
+                    { value: "latest", label: "Latest Arrival" },
+                    { value: "price-low", label: "Price: Low to High" },
+                    { value: "price-high", label: "Price: High to Low" },
+                    { value: "discount", label: "Best Discount" },
+                  ]}
+                  value={sortBy}
+                  onChange={(val) => setSortBy(val)}
+                />
+              </div>
+
+              {/* Reset Button */}
+              {(selectedCategory !== "All" || minPrice > priceMinBound || maxPrice < priceMaxBound || selectedDiscounts.length > 0 || sortBy !== "latest") && (
+                <button
+                  onClick={() => {
+                    setSelectedCategory("All");
+                    setMinPrice(priceMinBound);
+                    setMaxPrice(priceMaxBound);
+                    setSelectedDiscounts([]);
+                    setSortBy("latest");
+                  }}
+                  style={{
+                    background: "rgba(200,111,73,0.1)",
+                    border: "1px solid rgba(200,111,73,0.3)",
+                    borderRadius: 0,
+                    padding: "6px 12px",
+                    color: "#c86f49",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                    flexShrink: 0,
+                    transition: "all 0.2s",
+                    whiteSpace: "nowrap",
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = "rgba(200,111,73,0.2)"}
+                  onMouseLeave={e => e.currentTarget.style.background = "rgba(200,111,73,0.1)"}
+                >
+                  <span>Reset</span>
+                  <span>✕</span>
+                </button>
+              )}
 
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-            <div className="xl:col-span-3">
+          <div>
+            <div>
               {loading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2.5 md:gap-5">
                   {[...Array(8)].map((_, i) => (
                     <ProductCardSkeleton key={i} />
                   ))}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2.5 md:gap-5">
                   {filteredProducts.map((product) => (
                     <div
                       key={product.id}
-                      className=" overflow-hidden shadow-sm hover:shadow-xl transition relative"
+                      className="product-home-card overflow-hidden shadow-sm hover:shadow-xl transition relative bg-[var(--surface)]"
+                      style={{ borderRadius: 0 }}
                     >
-                      <Link to={`/store/${product.id}`}>
-                        <div className="h-96 bg-gray-100 overflow-hidden relative">
+                      <Link to={`/store/${product.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                        {/* Image */}
+                        <div
+                          className="product-home-img bg-gray-100 overflow-hidden relative"
+                          style={{ aspectRatio: "3/4", width: "100%" }}
+                        >
                           {product.imageUrl ? (
                             <img
                               src={product.imageUrl}
                               alt={product.name}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-cover transition-transform duration-500"
+                              style={{ display: "block" }}
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center">
+                            <div className="w-full h-full flex items-center justify-center text-3xl">
                               👕
                             </div>
                           )}
+
                           {/* Like Button */}
                           <button
                             onClick={(e) => {
@@ -553,56 +648,61 @@ export default function Store() {
                               toggleLike(product.id, product);
                             }}
                             disabled={likeLoading[product.id]}
-                            className="absolute top-3 right-3 w-8 h-8  bg-white/90 backdrop-blur-sm shadow-md flex items-center justify-center hover:bg-white transition-all hover:scale-110 z-10"
-                            style={{ opacity: likeLoading[product.id] ? 0.6 : 1 }}
+                            style={{
+                              position: "absolute", top: 8, right: 8,
+                              width: 30, height: 30,
+                              background: "rgba(255,255,255,0.92)",
+                              border: "none", borderRadius: "50%",
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                              cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                              zIndex: 10, transition: "transform 0.15s",
+                              opacity: likeLoading[product.id] ? 0.6 : 1,
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.transform = "scale(1.15)"}
+                            onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
                           >
                             <svg
-                              className={`w-4 h-4 transition-all duration-300 ${likedProducts.includes(product.id)
-                                  ? "text-red-500 fill-red-500 scale-110"
-                                  : "text-gray-400"
-                                }`}
+                              width="14" height="14"
                               viewBox="0 0 24 24"
-                              fill={likedProducts.includes(product.id) ? "currentColor" : "none"}
-                              stroke="currentColor"
+                              fill={likedProducts.includes(product.id) ? "#ef4444" : "none"}
+                              stroke={likedProducts.includes(product.id) ? "#ef4444" : "#9ca3af"}
                               strokeWidth="2"
                             >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                              />
+                              <path strokeLinecap="round" strokeLinejoin="round"
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                             </svg>
                           </button>
                         </div>
 
-                        <div className="p-4 text-left">
-                          <h3
-                            className="product-name font-semibold mb-2 uppercase text-lg tracking-tight"
-                          >
+                        {/* Info */}
+                        <div style={{ padding: "8px 10px 10px" }}>
+                          <h3 style={{
+                            fontWeight: 600, fontSize: "clamp(11px, 2.5vw, 14px)",
+                            textTransform: "uppercase", letterSpacing: "0.04em",
+                            marginBottom: 4, lineHeight: 1.3,
+                            color: "var(--text)",
+                            overflow: "hidden", textOverflow: "ellipsis",
+                            display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical",
+                          }}>
                             {product.name}
                           </h3>
 
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="font-bold">
-                              ₹{product.price}
+                          <div style={{ display: "flex", alignItems: "baseline", gap: 5, flexWrap: "wrap" }}>
+                            <span style={{ fontWeight: 700, fontSize: "clamp(12px, 3vw, 15px)", color: "var(--text)" }}>
+                              ₹{product.price?.toLocaleString("en-IN")}
                             </span>
-
                             {product.mrp && (
-                              <span className="text-sm text-gray-500 line-through">
-                                ₹{product.mrp}
+                              <span style={{ fontSize: "clamp(10px, 2vw, 12px)", color: "#9ca3af", textDecoration: "line-through" }}>
+                                ₹{product.mrp?.toLocaleString("en-IN")}
                               </span>
                             )}
                           </div>
 
                           {product.discount > 0 && (
-                            <p className="text-sm" style={{ color: "#c86f49" }}>
-                              ₹{product.mrp - product.price} Off
+                            <p style={{ fontSize: "clamp(10px, 2vw, 12px)", color: "#c86f49", fontWeight: 600, marginTop: 2 }}>
+                              ₹{(product.mrp - product.price)?.toLocaleString("en-IN")} Off
                             </p>
                           )}
-
-                          <p className="text-xs mt-1" style={{ color: "#c86f49" }}>
-                            Free delivery on prepaid orders
-                          </p>
                         </div>
                       </Link>
                     </div>

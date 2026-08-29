@@ -5,6 +5,9 @@ export class Cart {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
+  @Column({ default: '' })
+  userId!: string;
+
   @Column({ type: 'integer' })
   productId!: number;
 
@@ -19,6 +22,9 @@ export class Cart {
 
   @Column({ type: 'varchar', nullable: true })
   size?: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  color?: string | null;
 
   @Column({ type: 'text', nullable: true })
   imageUrl?: string | null;

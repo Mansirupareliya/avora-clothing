@@ -26,6 +26,9 @@ export class Product {
   @Column('simple-array', { nullable: true })
   sizes?: string[];
 
+  @Column('simple-array', { nullable: true })
+  colors?: string[];
+
   @Column({ nullable: true })
   imageUrl?: string;
 
@@ -40,4 +43,16 @@ export class Product {
 
   @Column({ type: 'int', default: 0 })
   ordersCount!: number;
+
+  @Column('text', { nullable: true })
+  materialsAndFits?: string;
+
+  @Column('text', { nullable: true })
+  fabricCare?: string;
+
+  @Column('text', { nullable: true })
+  deliveryAndReturns?: string;
+
+  @Column('text', { nullable: true })
+  details?: string;
 }

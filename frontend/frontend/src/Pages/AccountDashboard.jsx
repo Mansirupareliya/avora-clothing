@@ -27,7 +27,18 @@ const statusMeta = {
 const Badge = ({ status }) => {
   const s = statusMeta[status] || { bg: "#f3f4f6", color: "#6b7280" };
   return (
-    <span style={{ background: s.bg, color: s.color, padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+    <span style={{
+      background: s.bg,
+      color: s.color,
+      border: `1px solid ${s.color}40`,
+      padding: "3px 10px",
+      borderRadius: 0,
+      fontSize: 11,
+      fontWeight: 700,
+      textTransform: "uppercase",
+      letterSpacing: "0.06em",
+      display: "inline-block"
+    }}>
       {status}
     </span>
   );
@@ -361,12 +372,273 @@ function WishlistSection() {
 }
 
 /* ══════════════════════════════════════════════
+   ORDER TRACKING TIMELINE (Modal)
+══════════════════════════════════════════════ */
+const TRACK_STEPS = [
+  { key: "pending",          label: "Order Placed",      icon: "📋" },
+  { key: "confirmed",        label: "Confirmed",         icon: "✅" },
+  { key: "packed",           label: "Packed",            icon: "📦" },
+  { key: "dispatched",       label: "Dispatched",        icon: "🚀" },
+  { key: "out_for_delivery", label: "Out for Delivery",  icon: "🛵" },
+  { key: "delivered",        label: "Delivered",         icon: "🎉" },
+];
+const TRACK_STATUS_ORDER = TRACK_STEPS.map((s) => s.key);
+
+function TrackingModal({ order, onClose }) {
+  const currentIdx = TRACK_STATUS_ORDER.indexOf(order.status);
+  const isCancelled = order.status === "cancelled";
+  const history = Array.isArray(order.trackingHistory) ? [...order.trackingHistory].reverse() : [];
+
+  return (
+    <div
+      style={{
+        position: "fixed", inset: 0, zIndex: 9999,
+        background: "rgba(0,0,0,0.6)", backdropFilter: "blur(6px)",
+        display: "flex", alignItems: "flex-end", justifyContent: "center",
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          background: "var(--bg)", width: "100%", maxWidth: 680, maxHeight: "92vh",
+          overflowY: "auto", borderRadius: "18px 18px 0 0",
+          padding: "28px 24px 40px",
+          animation: "slideUp 0.32s cubic-bezier(0.34,1.26,0.64,1)",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Handle */}
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
+          <div style={{ width: 40, height: 4, background: "var(--border)", borderRadius: 99 }} />
+        </div>
+
+        {/* Header */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 22 }}>
+          <div>
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--muted)", margin: "0 0 4px" }}>
+              🚚 Delivery Limited × Avora
+            </p>
+            <h3 style={{ fontSize: 20, fontWeight: 800, color: "var(--text)", margin: 0 }}>
+              Track Order · <span style={{ fontFamily: "monospace", color: "#c86f49" }}>{order.orderId || `AVR-${order.orderNumber}`}</span>
+            </h3>
+            {order.awbNumber && (
+              <p style={{ fontSize: 12, color: "var(--muted)", margin: "6px 0 0", display: "flex", alignItems: "center", gap: 6 }}>
+                AWB: <span style={{ fontFamily: "monospace", background: "var(--surface)", border: "1px solid var(--border)", padding: "1px 8px", borderRadius: 4, color: "#6366f1", fontWeight: 700 }}>{order.awbNumber}</span>
+              </p>
+            )}
+            {order.estimatedDelivery && !["delivered", "cancelled"].includes(order.status) && (
+              <p style={{ fontSize: 12, color: "#16a34a", fontWeight: 700, margin: "4px 0 0" }}>
+                📅 Expected: {new Date(order.estimatedDelivery).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}
+              </p>
+            )}
+          </div>
+          <button
+            onClick={onClose}
+            style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "50%", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}
+          >
+            <FiX size={16} style={{ color: "var(--muted)" }} />
+          </button>
+        </div>
+
+        {/* Timeline */}
+        {!isCancelled ? (
+          <div style={{ marginBottom: 28 }}>
+            <div style={{ display: "flex", alignItems: "flex-start", overflowX: "auto", paddingBottom: 8 }}>
+              {TRACK_STEPS.map((step, i) => {
+                const done = i <= currentIdx;
+                const active = i === currentIdx;
+                const matchedEvt = (order.trackingHistory || []).find((e) => e.status === step.key);
+                return (
+                  <div key={step.key} style={{ display: "flex", alignItems: "flex-start", flex: 1, minWidth: 72 }}>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1 }}>
+                      <div style={{
+                        width: 44, height: 44, borderRadius: "50%",
+                        background: done ? (active ? "var(--primary)" : "#22c55e") : "var(--surface)",
+                        border: `3px solid ${done ? (active ? "var(--primary)" : "#22c55e") : "var(--border)"}`,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        fontSize: 18, flexShrink: 0,
+                        boxShadow: active ? "0 0 0 5px rgba(200,111,73,0.15)" : "none",
+                        transition: "all 0.3s",
+                      }}>
+                        {done ? (active ? step.icon : "✅") : step.icon}
+                      </div>
+                      <p style={{ fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "center", margin: "7px 0 0", color: done ? "var(--text)" : "var(--muted)", lineHeight: 1.3 }}>
+                        {step.label}
+                      </p>
+                      {matchedEvt && (
+                        <p style={{ fontSize: 9, color: "var(--muted)", fontFamily: "monospace", textAlign: "center", margin: "3px 0 0" }}>
+                          {new Date(matchedEvt.timestamp).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                          {" "}{new Date(matchedEvt.timestamp).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
+                        </p>
+                      )}
+                      {matchedEvt?.location && (
+                        <p style={{ fontSize: 9, color: "#6366f1", fontWeight: 600, textAlign: "center", margin: "2px 0 0" }}>📍 {matchedEvt.location}</p>
+                      )}
+                    </div>
+                    {i < TRACK_STEPS.length - 1 && (
+                      <div style={{ height: 3, flex: 1, marginTop: 20, minWidth: 12, background: i < currentIdx ? "#22c55e" : "var(--border)", borderRadius: 99, transition: "background 0.4s" }} />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <div style={{ background: "#fef2f2", border: "1px solid #fca5a5", padding: "18px", marginBottom: 24, borderRadius: 8, textAlign: "center" }}>
+            <p style={{ fontSize: 28 }}>❌</p>
+            <p style={{ fontWeight: 800, fontSize: 15, color: "#b91c1c", textTransform: "uppercase" }}>Order Cancelled</p>
+          </div>
+        )}
+
+        {/* Tracking History */}
+        {history.length > 0 && (
+          <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, padding: "20px", marginBottom: 20 }}>
+            <p style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--muted)", margin: "0 0 18px" }}>
+              📋 Tracking History
+            </p>
+            {history.map((evt, idx) => (
+              <div key={idx} style={{ display: "flex", gap: 14, position: "relative" }}>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 18 }}>
+                  <div style={{ width: 10, height: 10, borderRadius: "50%", marginTop: 3, flexShrink: 0, background: idx === 0 ? "var(--primary)" : "var(--border)", border: `2px solid ${idx === 0 ? "var(--primary)" : "var(--border)"}` }} />
+                  {idx < history.length - 1 && <div style={{ width: 2, flex: 1, background: "var(--border)", margin: "3px 0" }} />}
+                </div>
+                <div style={{ paddingBottom: 18, flex: 1, minWidth: 0 }}>
+                  <p style={{ fontWeight: 700, fontSize: 13, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--text)", margin: 0 }}>
+                    {evt.status?.replace(/_/g, " ")}
+                  </p>
+                  <p style={{ color: "var(--muted)", fontSize: 12, margin: "3px 0 0" }}>{evt.message}</p>
+                  {evt.location && <p style={{ color: "#6366f1", fontSize: 11, fontWeight: 600, margin: "2px 0 0" }}>📍 {evt.location}</p>}
+                  <p style={{ color: "var(--muted)", fontSize: 11, fontFamily: "monospace", margin: "3px 0 0" }}>
+                    {new Date(evt.timestamp).toLocaleString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Address */}
+        {order.shippingAddress && (
+          <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 10, padding: "14px 18px", fontSize: 13 }}>
+            <p style={{ fontWeight: 700, color: "var(--muted)", fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", margin: "0 0 6px" }}>Delivering to</p>
+            <p style={{ fontWeight: 600, color: "var(--text)", margin: 0 }}>
+              {order.shippingAddress.fullName} — {order.shippingAddress.addressLine1}, {order.shippingAddress.city} {order.shippingAddress.pincode}
+            </p>
+            <p style={{ color: "var(--muted)", fontSize: 12, margin: "4px 0 0" }}>📞 {order.shippingAddress.phone}</p>
+          </div>
+        )}
+      </div>
+
+      <style>{`
+        @keyframes slideUp {
+          from { transform: translateY(100%); opacity: 0; }
+          to   { transform: translateY(0);    opacity: 1; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+/* ── Single Order Card ── */
+function OrderCard({ order, displayOrderId }) {
+  const [showTracking, setShowTracking] = useState(false);
+  return (
+    <>
+      <div
+        style={{
+          background: "var(--surface)",
+          border: "1px solid var(--border)",
+          borderRadius: 0,
+          padding: 18,
+          transition: "all 0.2s ease",
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, paddingBottom: 14, borderBottom: "1px solid var(--border)" }}>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+              <span style={{ background: "#c86f49", color: "#fff", fontFamily: "monospace", fontWeight: 700, fontSize: 13, padding: "3px 10px", borderRadius: 0, letterSpacing: "0.05em" }}>
+                🆔 {displayOrderId}
+              </span>
+              <Badge status={order.status || "pending"} />
+              <span style={{ background: "#eef2ff", border: "1px solid #c7d2fe", color: "#4338ca", fontSize: 10, fontWeight: 700, padding: "2px 8px", letterSpacing: "0.06em", textTransform: "uppercase", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                🚚 Delivery Limited{order.awbNumber ? ` · ${order.awbNumber}` : ""}
+              </span>
+            </div>
+            <p style={{ fontSize: 12, color: "var(--muted)", marginTop: 6, margin: "6px 0 0" }}>
+              Placed on {new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+            </p>
+            {order.estimatedDelivery && !["delivered", "cancelled"].includes(order.status) && (
+              <p style={{ fontSize: 12, color: "#16a34a", fontWeight: 700, margin: "3px 0 0" }}>
+                📅 Expected by {new Date(order.estimatedDelivery).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}
+              </p>
+            )}
+          </div>
+
+          <div style={{ textAlign: "right" }}>
+            <p style={{ fontSize: 11, color: "var(--muted)", textTransform: "uppercase", fontWeight: 700, margin: "0 0 2px" }}>Total Amount</p>
+            <p style={{ fontSize: 17, fontWeight: 700, color: "#c86f49", margin: 0 }}>₹{Number(order.totalAmount || 0).toLocaleString()}</p>
+          </div>
+        </div>
+
+        <div style={{ paddingTop: 14, display: "flex", flexDirection: "column", gap: 10 }}>
+          {(order.items || []).map((item, idx) => (
+            <div key={idx} style={{ display: "flex", items: "center", justifyContent: "space-between", gap: 12, background: "var(--bg)", border: "1px solid var(--border)", padding: "10px 14px", borderRadius: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                {item.imageUrl && (
+                  <img src={item.imageUrl} alt={item.productName} style={{ width: 42, height: 50, objectFit: "cover", borderRadius: 4, border: "1px solid var(--border)" }} />
+                )}
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", margin: "0 0 2px" }}>{item.productName}</p>
+                  <p style={{ fontSize: 11, color: "var(--muted)", margin: 0 }}>
+                    {item.size ? `Size: ${item.size} • ` : ""}Qty: {item.quantity}
+                  </p>
+                </div>
+              </div>
+
+              <p style={{ fontSize: 13, fontWeight: 700, color: "var(--primary)", margin: 0 }}>
+                ₹{Number(item.price * item.quantity).toLocaleString()}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px dashed var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
+          {order.shippingAddress && (
+            <div style={{ fontSize: 12, color: "var(--muted)" }}>
+              📍 <strong style={{ color: "var(--text)" }}>{order.shippingAddress.fullName}</strong>{" "}
+              ({order.shippingAddress.city} - {order.shippingAddress.pincode})
+            </div>
+          )}
+
+          <button
+            onClick={() => setShowTracking(true)}
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 7,
+              background: "linear-gradient(135deg, #4338ca, #6366f1)",
+              color: "#fff", border: "none", padding: "9px 18px",
+              fontSize: 12, fontWeight: 700, letterSpacing: "0.06em",
+              textTransform: "uppercase", cursor: "pointer",
+              borderRadius: 6, transition: "opacity 0.2s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+          >
+            📍 Track Order
+          </button>
+        </div>
+      </div>
+
+      {showTracking && <TrackingModal order={order} onClose={() => setShowTracking(false)} />}
+    </>
+  );
+}
+
+/* ══════════════════════════════════════════════
    ORDERS
 ══════════════════════════════════════════════ */
 function OrdersSection() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [expandedId, setExpandedId] = useState(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -381,11 +653,14 @@ function OrdersSection() {
         localOrders = JSON.parse(localStorage.getItem('avora_local_orders') || '[]');
       } catch (e) {}
 
-      // Combine and deduplicate orders
       const map = new Map();
-      [...remoteOrders, ...localOrders].forEach((o) => {
+      // Process local first, then overwrite with remote so backend data (fresh status/IDs) takes precedence
+      [...localOrders, ...remoteOrders].forEach((o) => {
         const key = o.id || o.orderId;
         if (key && !map.has(key)) {
+          map.set(key, o);
+        } else if (key && map.has(key)) {
+          // If already exists, overwrite it because remote comes later and is fresher
           map.set(key, o);
         }
       });
@@ -419,73 +694,8 @@ function OrdersSection() {
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {orders.map((o) => {
               const displayOrderId = o.orderId || (o.orderNumber ? `AVR-${o.orderNumber}` : `#${o.id?.slice(0, 8).toUpperCase()}`);
-              const isExpanded = expandedId === o.id;
               return (
-                <div
-                  key={o.id || o.orderId}
-                  style={{
-                    background: "var(--surface)",
-                    border: "1px solid var(--border)",
-                    borderRadius: 12,
-                    padding: 18,
-                    transition: "all 0.2s ease",
-                  }}
-                >
-                  {/* Top Bar: Order ID, Date & Badge */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, paddingBottom: 14, borderBottom: "1px solid var(--border)" }}>
-                    <div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <span style={{ background: "#c86f49", color: "#fff", fontFamily: "monospace", fontWeight: 700, fontSize: 13, padding: "3px 10px", borderRadius: 4, letterSpacing: "0.05em" }}>
-                          🆔 {displayOrderId}
-                        </span>
-                        <Badge status={o.status || "pending"} />
-                      </div>
-                      <p style={{ fontSize: 12, color: "var(--muted)", marginTop: 6, margin: "6px 0 0" }}>
-                        Placed on {new Date(o.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
-                      </p>
-                    </div>
-
-                    <div style={{ textAlign: "right" }}>
-                      <p style={{ fontSize: 11, color: "var(--muted)", textTransform: "uppercase", fontWeight: 700, margin: "0 0 2px" }}>Total Amount</p>
-                      <p style={{ fontSize: 17, fontWeight: 700, color: "#c86f49", margin: 0 }}>₹{Number(o.totalAmount || 0).toLocaleString()}</p>
-                    </div>
-                  </div>
-
-                  {/* Order Items Preview */}
-                  <div style={{ paddingTop: 14, display: "flex", flexDirection: "column", gap: 10 }}>
-                    {(o.items || []).map((item, idx) => (
-                      <div key={idx} style={{ display: "flex", items: "center", justifyContent: "space-between", gap: 12, background: "var(--bg)", border: "1px solid var(--border)", padding: "10px 14px", borderRadius: 8 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                          {item.imageUrl && (
-                            <img src={item.imageUrl} alt={item.productName} style={{ width: 42, height: 50, objectFit: "cover", borderRadius: 4, border: "1px solid var(--border)" }} />
-                          )}
-                          <div>
-                            <p style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", margin: "0 0 2px" }}>{item.productName}</p>
-                            <p style={{ fontSize: 11, color: "var(--muted)", margin: 0 }}>
-                              {item.size ? `Size: ${item.size} • ` : ""}Qty: {item.quantity}
-                            </p>
-                          </div>
-                        </div>
-
-                        <p style={{ fontSize: 13, fontWeight: 700, color: "var(--primary)", margin: 0 }}>
-                          ₹{Number(item.price * item.quantity).toLocaleString()}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Shipping Address Footer */}
-                  {o.shippingAddress && (
-                    <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px dashed var(--border)", fontSize: 12, color: "var(--muted)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
-                      <div>
-                        📍 Delivery: <strong style={{ color: "var(--text)" }}>{o.shippingAddress.fullName}</strong> ({o.shippingAddress.city} - {o.shippingAddress.pincode})
-                      </div>
-                      <div style={{ fontWeight: 600, color: "var(--primary)" }}>
-                        📞 {o.shippingAddress.phone}
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <OrderCard key={o.id || o.orderId} order={o} displayOrderId={displayOrderId} />
               );
             })}
           </div>
@@ -493,6 +703,7 @@ function OrdersSection() {
     </div>
   );
 }
+
 
 /* ══════════════════════════════════════════════
    RETURNS

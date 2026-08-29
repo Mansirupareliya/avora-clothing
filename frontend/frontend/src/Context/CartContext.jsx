@@ -1,19 +1,42 @@
 import React, { createContext, useState, useCallback, useEffect } from 'react';
 import axios from 'axios';
+import { useAuth } from './AuthContext';
 
 const CartContext = createContext();
 const CART_API = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/cart`;
+const STORAGE_KEY = 'avora_cart_items';
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
 
+function saveToStorage(items) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  } catch {
+    // quota exceeded – silently ignore
+  }
+}
+
+// ─── Provider ─────────────────────────────────────────────────────────────────
 export function CartProvider({ children }) {
-  const [cartItems, setCartItems] = useState([]);
+  // Initialise from localStorage so cart survives page refresh
+  const [cartItems, setCartItems] = useState(() => loadFromStorage());
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
 
-  // Fetch cart items on mount
+  // Keep localStorage in sync whenever cartItems changes
   useEffect(() => {
-    fetchCart();
-  }, []);
+    saveToStorage(cartItems);
+  }, [cartItems]);
 
+  // ── fetchCart (still exposed so CartDrawer can call it if needed) ──────────
   const fetchCart = useCallback(async () => {
     try {
       setLoading(true);
@@ -26,6 +49,17 @@ export function CartProvider({ children }) {
     }
   }, []);
 
+  // Sync cart with backend when user logs in/out
+  useEffect(() => {
+    if (user) {
+      fetchCart();
+    } else {
+      setCartItems([]);
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  }, [user, fetchCart]);
+
+  // ── addToCart ──────────────────────────────────────────────────────────────
   const addToCart = useCallback(async (product, quantity, size) => {
     try {
       const response = await axios.post(`${CART_API}/add`, {
@@ -55,6 +89,7 @@ export function CartProvider({ children }) {
     }
   }, []);
 
+  // ── removeFromCart ─────────────────────────────────────────────────────────
   const removeFromCart = useCallback(async (cartItemId) => {
     try {
       await axios.delete(`${CART_API}/${cartItemId}`);
@@ -65,6 +100,7 @@ export function CartProvider({ children }) {
     }
   }, []);
 
+  // ── updateCart ─────────────────────────────────────────────────────────────
   const updateCart = useCallback(async (cartItemId, quantity, size) => {
     try {
       const response = await axios.put(`${CART_API}/${cartItemId}`, {
@@ -81,6 +117,7 @@ export function CartProvider({ children }) {
     }
   }, []);
 
+  // ── clearCart ──────────────────────────────────────────────────────────────
   const clearCart = useCallback(async () => {
     try {
       await axios.delete(CART_API);
@@ -91,8 +128,13 @@ export function CartProvider({ children }) {
     }
   }, []);
 
+
+  // ── derived values ─────────────────────────────────────────────────────────
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  const cartTotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const cartTotal = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 
   return (
     <CartContext.Provider

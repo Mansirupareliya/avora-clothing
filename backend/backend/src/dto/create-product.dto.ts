@@ -50,6 +50,22 @@ export class CreateProductDto {
   sizes?: string[];
 
   @IsOptional()
+  @Transform(({ value }) => {
+    if (!value) return undefined;
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return value.split(',').map((item) => item.trim()).filter(Boolean);
+      }
+    }
+    return value;
+  })
+  @IsArray()
+  @IsString({ each: true })
+  colors?: string[];
+
+  @IsOptional()
   @IsString()
   imageUrl?: string;
 
@@ -68,4 +84,20 @@ export class CreateProductDto {
   @IsArray()
   @IsString({ each: true })
   images?: string[];
+
+  @IsOptional()
+  @IsString()
+  materialsAndFits?: string;
+
+  @IsOptional()
+  @IsString()
+  fabricCare?: string;
+
+  @IsOptional()
+  @IsString()
+  deliveryAndReturns?: string;
+
+  @IsOptional()
+  @IsString()
+  details?: string;
 }

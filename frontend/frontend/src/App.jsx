@@ -20,6 +20,9 @@ import LiveProductEditor from "./Pages/LiveProductEditor";
 import WebsiteDashboard from "./Pages/WebsiteDashboard";
 import AdminOrders from "./Pages/AdminOrders";
 import AdminCredits from "./Pages/AdminCredits";
+import AdminCoupons from "./Pages/AdminCoupons";
+import OrderTrackingPage from "./Pages/OrderTrackingPage";
+import CourierDeliveryPage from "./Pages/CourierDeliveryPage";
 
 function App() {
   const location = useLocation();
@@ -37,6 +40,7 @@ function App() {
               <Route path="/products" element={<Products />} />
               <Route path="/admin/orders" element={<AdminOrders />} />
               <Route path="/admin/credits" element={<AdminCredits />} />
+              <Route path="/admin/coupons" element={<AdminCoupons />} />
               <Route path="/inventory" element={<LiveProductEditor />} />
               <Route path="/web-dashboard" element={<WebsiteDashboard />} />
               <Route path="/reviews" element={<AdminReviews />} />
@@ -48,6 +52,8 @@ function App() {
                 <Route path="login" element={<Login />} />
                 <Route path="signup" element={<Signup />} />
                 <Route path="account" element={<AccountDashboard />} />
+                <Route path="track-order" element={<OrderTrackingPage />} />
+                <Route path="courier-delivery" element={<CourierDeliveryPage />} />
                 <Route path=":productId" element={<ProductDetail />} />
               </Route>
               <Route path="/cart" element={<CartLayout />}>

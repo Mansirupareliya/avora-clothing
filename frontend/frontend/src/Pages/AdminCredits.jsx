@@ -296,21 +296,59 @@ export default function AdminCredits() {
           </div>
         </div>
 
-        <button
-          onClick={() => setShowConfigModal(true)}
-          style={{
-            background: "rgba(255,255,255,0.12)",
-            border: "1px solid rgba(255,255,255,0.25)",
-            color: "#fff",
-            padding: "8px 14px",
-            borderRadius: 6,
-            fontSize: 12,
-            fontWeight: 700,
-            cursor: "pointer",
-          }}
-        >
-          ✏️ Edit Rules
-        </button>
+        <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+          {/* Quick ON/OFF Toggle */}
+          <button
+            onClick={async () => {
+              const newVal = !config.isEnabled;
+              try {
+                const res = await axios.patch(`${API}/shopping-credits/admin/config`, { ...config, isEnabled: newVal });
+                if (res.data) setConfig(res.data);
+                showToast(newVal ? "✅ Offer is now LIVE on user side!" : "⏸️ Offer hidden from user side!", newVal ? "success" : "error");
+              } catch { showToast("Failed to update offer status", "error"); }
+            }}
+            style={{
+              display: "flex", alignItems: "center", gap: 8,
+              background: config.isEnabled ? "rgba(239,68,68,0.18)" : "rgba(22,163,74,0.18)",
+              border: `1.5px solid ${config.isEnabled ? "rgba(239,68,68,0.5)" : "rgba(22,163,74,0.5)"}`,
+              color: config.isEnabled ? "#fca5a5" : "#86efac",
+              padding: "8px 16px", borderRadius: 6,
+              fontSize: 12, fontWeight: 800, cursor: "pointer",
+              transition: "all 0.2s",
+            }}
+          >
+            <span style={{
+              width: 32, height: 16, borderRadius: 20,
+              background: config.isEnabled ? "#22c55e" : "#6b7280",
+              display: "inline-block", position: "relative",
+              transition: "background 0.2s",
+            }}>
+              <span style={{
+                position: "absolute", width: 12, height: 12, borderRadius: "50%",
+                background: "#fff", top: 2,
+                left: config.isEnabled ? 18 : 2,
+                transition: "left 0.2s",
+              }} />
+            </span>
+            {config.isEnabled ? "Turn OFF Offers" : "Turn ON Offers"}
+          </button>
+
+          <button
+            onClick={() => setShowConfigModal(true)}
+            style={{
+              background: "rgba(255,255,255,0.12)",
+              border: "1px solid rgba(255,255,255,0.25)",
+              color: "#fff",
+              padding: "8px 14px",
+              borderRadius: 6,
+              fontSize: 12,
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+          >
+            ✏️ Edit Rules
+          </button>
+        </div>
       </div>
 
       {/* Analytics Summary Cards */}
@@ -514,7 +552,7 @@ export default function AdminCredits() {
                             color: badge.color,
                             border: `1px solid ${badge.border}`,
                             padding: "3px 10px",
-                            borderRadius: 20,
+                            borderRadius: 0,
                             fontSize: 11,
                             fontWeight: 700,
                             textTransform: "uppercase",

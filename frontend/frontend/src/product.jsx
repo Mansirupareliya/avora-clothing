@@ -22,9 +22,15 @@ function Products() {
     price: "",
     category: "",
     sizes: "",
+    colors: [],
+    materialsAndFits: "",
+    fabricCare: "",
+    deliveryAndReturns: "",
+    details: "",
   });
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [currentColor, setCurrentColor] = useState("#000000");
+  const [imageFiles, setImageFiles] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const [editingId, setEditingId] = useState(null);
 
   const fetchProducts = async () => {
@@ -59,16 +65,46 @@ function Products() {
     });
   };
 
+  const addColor = () => {
+    if (!currentColor) return;
+    setForm(prev => ({
+      ...prev,
+      colors: prev.colors.includes(currentColor) ? prev.colors : [...prev.colors, currentColor]
+    }));
+  };
+
+  const removeColor = (colorToRemove) => {
+    setForm(prev => ({
+      ...prev,
+      colors: prev.colors.filter(c => c !== colorToRemove)
+    }));
+  };
+
+  const removeImage = (index) => {
+    setImageFiles(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleImageChange = (e) => {
-    const file = e.target.files?.[0] ?? null;
-    setImageFile(file);
-    if (file) {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    
+    setImageFiles(prev => [...prev, ...files]);
+    
+    const newPreviews = [];
+    files.forEach((file) => {
       const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result);
+      reader.onloadend = () => {
+        newPreviews.push(reader.result);
+        if (newPreviews.length === files.length) {
+          setImagePreviews(prev => [...prev, ...newPreviews]);
+        }
+      };
       reader.readAsDataURL(file);
-    } else {
-      setImagePreview(null);
-    }
+    });
+    
+    // Clear input so same file can be selected again if needed
+    e.target.value = null;
   };
 
   const handleSubmit = async (e) => {
@@ -81,12 +117,19 @@ function Products() {
     data.append("discount", form.discount);
     data.append("price", form.price);
     data.append("category", form.category);
+    data.append("materialsAndFits", form.materialsAndFits);
+    data.append("fabricCare", form.fabricCare);
+    data.append("deliveryAndReturns", form.deliveryAndReturns);
+    data.append("details", form.details);
     if (form.sizes) {
       data.append("sizes", form.sizes);
     }
+    if (form.colors && form.colors.length > 0) {
+      data.append("colors", form.colors.join(','));
+    }
 
-    if (imageFile) {
-      data.append("image", imageFile);
+    if (imageFiles && imageFiles.length > 0) {
+      imageFiles.forEach(file => data.append("images", file));
     }
 
     try {
@@ -111,9 +154,14 @@ function Products() {
         price: "",
         category: "",
         sizes: "",
+        colors: [],
+        materialsAndFits: "",
+        fabricCare: "",
+        deliveryAndReturns: "",
+        details: "",
       });
-      setImageFile(null);
-      setImagePreview(null);
+      setImageFiles([]);
+      setImagePreviews([]);
 
       fetchProducts();
       setActiveTab("listings");
@@ -134,8 +182,13 @@ function Products() {
       price: product.price || "",
       category: product.category || "",
       sizes: Array.isArray(product.sizes) ? product.sizes.join(", ") : product.sizes || "",
+      colors: Array.isArray(product.colors) ? product.colors : (product.colors ? String(product.colors).split(',') : []),
+      materialsAndFits: product.materialsAndFits || "",
+      fabricCare: product.fabricCare || "",
+      deliveryAndReturns: product.deliveryAndReturns || "",
+      details: product.details || "",
     });
-    setImagePreview(product.imageUrl || null);
+    setImagePreviews(product.images?.length > 0 ? product.images : (product.imageUrl ? [product.imageUrl] : []));
     setActiveTab("add");
     setSearchParams({ tab: "add" });
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -499,6 +552,62 @@ function Products() {
                 />
               </div>
 
+              {/* Grid 2.5: Accordions */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text)] mb-2">
+                    Materials & Fits
+                  </label>
+                  <textarea
+                    name="materialsAndFits"
+                    rows="2"
+                    placeholder="e.g., 100% Cotton, Regular Fit..."
+                    value={form.materialsAndFits}
+                    onChange={handleChange}
+                    className="w-full bg-[var(--bg)] border border-[var(--border)] px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--primary)] transition"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text)] mb-2">
+                    Fabric Care
+                  </label>
+                  <textarea
+                    name="fabricCare"
+                    rows="2"
+                    placeholder="e.g., Machine wash cold..."
+                    value={form.fabricCare}
+                    onChange={handleChange}
+                    className="w-full bg-[var(--bg)] border border-[var(--border)] px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--primary)] transition"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text)] mb-2">
+                    Delivery & Returns
+                  </label>
+                  <textarea
+                    name="deliveryAndReturns"
+                    rows="2"
+                    placeholder="e.g., Dispatch in 24 hours..."
+                    value={form.deliveryAndReturns}
+                    onChange={handleChange}
+                    className="w-full bg-[var(--bg)] border border-[var(--border)] px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--primary)] transition"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text)] mb-2">
+                    Details
+                  </label>
+                  <textarea
+                    name="details"
+                    rows="2"
+                    placeholder="e.g., Additional styling notes..."
+                    value={form.details}
+                    onChange={handleChange}
+                    className="w-full bg-[var(--bg)] border border-[var(--border)] px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--primary)] transition"
+                  />
+                </div>
+              </div>
+
               {/* Grid 3: Pricing Breakdown */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 bg-[var(--bg)] p-4 border border-[var(--border)]">
                 <div>
@@ -561,25 +670,75 @@ function Products() {
                     onChange={handleChange}
                     className="w-full bg-[var(--bg)] border border-[var(--border)] px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--primary)] transition"
                   />
+                  
+                  <div className="mt-4">
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text)] mb-2">
+                      Product Colors
+                    </label>
+                    <div className="flex items-center gap-3 mb-3">
+                      <input 
+                        type="color" 
+                        value={currentColor} 
+                        onChange={(e) => setCurrentColor(e.target.value)} 
+                        className="w-10 h-10 cursor-pointer border-0 p-0"
+                      />
+                      <button 
+                        type="button" 
+                        onClick={addColor}
+                        className="bg-[var(--primary)] text-white text-xs font-bold px-4 py-2 uppercase tracking-wider hover:opacity-90 transition"
+                      >
+                        Add Color
+                      </button>
+                    </div>
+                    {form.colors && form.colors.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {form.colors.map(color => (
+                          <div key={color} className="relative group flex items-center justify-center w-8 h-8 rounded-full border border-[var(--border)]" style={{ backgroundColor: color }}>
+                            <button 
+                              type="button" 
+                              onClick={() => removeColor(color)}
+                              className="absolute -top-1 -right-1 bg-red-500 text-white w-4 h-4 rounded-full text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text)] mb-2">
-                    Product Image {editingId ? "(Optional to update)" : "*"}
+                    Product Images {editingId ? "(Optional to update)" : "*"}
                   </label>
-                  <div className="flex items-center gap-4">
+                  <div className="flex flex-col gap-4">
                     <input
                       type="file"
                       accept="image/*"
+                      multiple
                       onChange={handleImageChange}
                       className="text-xs text-[var(--muted)] file:mr-4 file:py-2 file:px-4 file:border-0 file:text-xs file:font-semibold file:bg-[var(--primary)] file:text-white hover:file:opacity-90 cursor-pointer"
                     />
-                    {imagePreview && (
-                      <img
-                        src={imagePreview}
-                        alt="Preview"
-                        className="w-14 h-14 object-cover border border-[var(--border)]"
-                      />
+                    {imagePreviews.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {imagePreviews.map((preview, index) => (
+                          <div key={index} className="relative group">
+                            <img
+                              src={preview}
+                              alt={`Preview ${index}`}
+                              className="w-14 h-14 object-cover border border-[var(--border)]"
+                            />
+                            <button 
+                              type="button" 
+                              onClick={() => removeImage(index)}
+                              className="absolute -top-2 -right-2 bg-red-500 text-white w-5 h-5 rounded-full text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-sm"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </div>
                 </div>

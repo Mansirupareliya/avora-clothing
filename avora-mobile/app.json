@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "Avora",
+    "slug": "avora-mobile",
+    "version": "1.0.0",
+    "platforms": [
+      "android",
+      "ios",
+      "web"
+    ],
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#212d43"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.avora.menswear"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#212d43"
+      },
+      "package": "com.avora.menswear",
+      "usesCleartextTraffic": true
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "apiUrl": "http://10.0.2.2:3000"
+    },
+    "plugins": [
+      "expo-status-bar",
+      "expo-font"
+    ]
+  }
+}

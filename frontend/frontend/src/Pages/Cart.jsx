@@ -25,13 +25,22 @@ export default function Cart() {
   const [applyCredit, setApplyCredit] = useState(false);
   const [unlockedCredit, setUnlockedCredit] = useState(null);
 
+  // Coupon States
+  const [couponCodeInput, setCouponCodeInput] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponMsg, setCouponMsg] = useState(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+
   const subtotal = cartTotal;
   const minOrderValue = activeCredit ? Number(activeCredit.minOrderValue || 6000) : 6000;
   const isCreditEligible = activeCredit && subtotal >= minOrderValue;
   const creditDiscount = (isCreditEligible && applyCredit) ? Math.min(Number(activeCredit.amount || 2000), subtotal) : 0;
   
+  const subtotalAfterCredit = Math.max(0, subtotal - creditDiscount);
+  const couponDiscount = appliedCoupon ? Math.min(Number(appliedCoupon.discountAmount || 0), subtotalAfterCredit) : 0;
+
   const gstRate = 5;
-  const discountedSubtotal = Math.max(0, subtotal - creditDiscount);
+  const discountedSubtotal = Math.max(0, subtotalAfterCredit - couponDiscount);
   const gstAmount = discountedSubtotal * (gstRate / 100);
   const grandTotal = discountedSubtotal + gstAmount;
 
@@ -45,6 +54,41 @@ export default function Cart() {
     note: "",
     payment: "cod",
   });
+
+  const handleApplyCoupon = async (e) => {
+    if (e) e.preventDefault();
+    if (!couponCodeInput.trim()) return;
+    setCouponLoading(true);
+    setCouponMsg(null);
+    try {
+      const res = await axios.post(`${API}/coupons/validate`, {
+        code: couponCodeInput.trim(),
+        orderTotal: subtotalAfterCredit,
+        userId: user?.id,
+        userEmail: user?.email,
+      });
+      if (res.data && res.data.valid) {
+        setAppliedCoupon({
+          code: res.data.coupon.code,
+          discountAmount: res.data.discountAmount,
+          message: res.data.message,
+        });
+        setCouponMsg({ text: res.data.message, isError: false });
+      } else {
+        setCouponMsg({ text: res.data?.message || "Invalid coupon code", isError: true });
+      }
+    } catch (err) {
+      setCouponMsg({ text: err?.response?.data?.message || "Failed to validate coupon", isError: true });
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCodeInput("");
+    setCouponMsg(null);
+  };
 
   // Fetch available active Shopping Credit
   useEffect(() => {
@@ -122,6 +166,21 @@ export default function Cart() {
       if (orderRes.data && orderRes.data.orderId) {
         generatedOrderId = orderRes.data.orderId;
 
+        // Record coupon application in backend
+        if (appliedCoupon) {
+          try {
+            await axios.post(`${API}/coupons/apply`, {
+              code: appliedCoupon.code,
+              orderId: generatedOrderId,
+              discountApplied: couponDiscount,
+              userId: user?.id,
+              userEmail: user?.email,
+            });
+          } catch (e) {
+            console.error("Failed to record coupon application:", e);
+          }
+        }
+
         // Check if a new ₹2,000 credit was unlocked
         if (orderRes.data.unlockedCredit) {
           newlyUnlocked = orderRes.data.unlockedCredit;
@@ -164,6 +223,7 @@ export default function Cart() {
         : "Online Payment (QR Code)";
 
     const creditAppliedText = creditDiscount > 0 ? `\n🎁 *CREDIT APPLIED:* -Rs. ${creditDiscount.toFixed(2)} (${activeCredit?.code})` : "";
+    const couponAppliedText = couponDiscount > 0 ? `\n🎟️ *COUPON APPLIED:* -Rs. ${couponDiscount.toFixed(2)} (${appliedCoupon?.code})` : "";
 
     const msg = `🛍️ *NEW CART ORDER - AVORA*
 🆔 *ORDER ID: ${generatedOrderId}*
@@ -172,7 +232,7 @@ export default function Cart() {
 ${itemsListText}
 
 -----------------------------
-*SUBTOTAL:* Rs. ${subtotal.toFixed(2)}${creditAppliedText}
+*SUBTOTAL:* Rs. ${subtotal.toFixed(2)}${creditAppliedText}${couponAppliedText}
 *GST (${gstRate}%):* Rs. ${gstAmount.toFixed(2)}
 *TOTAL AMOUNT (incl. GST):* Rs. ${grandTotal.toFixed(2)}
 *TOTAL ITEMS:* ${cartItems.reduce((sum, item) => sum + item.quantity, 0)}
@@ -625,6 +685,18 @@ Please confirm my order. Thank you!`;
                   <span>Subtotal:</span>
                   <span style={{ fontWeight: 600, color: "var(--text)" }}>₹{subtotal.toFixed(2)}</span>
                 </div>
+                {creditDiscount > 0 && (
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "#16a34a", fontWeight: 600 }}>
+                    <span>Credit ({activeCredit?.code}):</span>
+                    <span>-₹{creditDiscount.toFixed(2)}</span>
+                  </div>
+                )}
+                {couponDiscount > 0 && (
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "#16a34a", fontWeight: 600 }}>
+                    <span>Coupon ({appliedCoupon?.code}):</span>
+                    <span>-₹{couponDiscount.toFixed(2)}</span>
+                  </div>
+                )}
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--muted)" }}>
                   <span>GST ({gstRate}%):</span>
                   <span style={{ fontWeight: 600, color: "var(--text)" }}>+₹{gstAmount.toFixed(2)}</span>
@@ -634,6 +706,109 @@ Please confirm my order. Thank you!`;
                   <span>₹{grandTotal.toFixed(2)}</span>
                 </div>
               </div>
+            </div>
+
+            {/* Coupon Code Section */}
+            <div style={{
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              padding: "14px 16px",
+              marginBottom: 20,
+            }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                <label style={{ color: "var(--text)", fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", display: "flex", alignItems: "center", gap: 6 }}>
+                  <span>🎟️</span> Have a Coupon Code?
+                </label>
+              </div>
+
+              {!appliedCoupon ? (
+                <div style={{ display: "flex", gap: 8 }}>
+                  <input
+                    type="text"
+                    value={couponCodeInput}
+                    onChange={(e) => setCouponCodeInput(e.target.value.toUpperCase())}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleApplyCoupon(); } }}
+                    placeholder="ENTER COUPON CODE"
+                    style={{
+                      flex: 1,
+                      background: "var(--surface)",
+                      border: "1px solid var(--border)",
+                      padding: "10px 12px",
+                      color: "var(--text)",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                      outline: "none",
+                      borderRadius: 0,
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleApplyCoupon}
+                    disabled={couponLoading || !couponCodeInput.trim()}
+                    style={{
+                      background: "var(--primary)",
+                      color: "#fff",
+                      border: "none",
+                      padding: "10px 18px",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      letterSpacing: "0.05em",
+                      textTransform: "uppercase",
+                      cursor: couponLoading || !couponCodeInput.trim() ? "not-allowed" : "pointer",
+                      opacity: couponLoading || !couponCodeInput.trim() ? 0.6 : 1,
+                      borderRadius: 0,
+                    }}
+                  >
+                    {couponLoading ? "..." : "Apply"}
+                  </button>
+                </div>
+              ) : (
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  background: "rgba(22,163,74,0.08)",
+                  border: "1px solid rgba(22,163,74,0.3)",
+                  padding: "10px 14px",
+                }}>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: "#16a34a", fontFamily: "monospace" }}>
+                      🎟️ {appliedCoupon.code}
+                    </div>
+                    <div style={{ fontSize: 11, color: "#15803d", fontWeight: 600 }}>
+                      Saving ₹{couponDiscount.toFixed(2)} on this order
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleRemoveCoupon}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "#ef4444",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Remove ✕
+                  </button>
+                </div>
+              )}
+
+              {couponMsg && !appliedCoupon && (
+                <div style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  marginTop: 8,
+                  color: couponMsg.isError ? "#ef4444" : "#16a34a",
+                }}>
+                  {couponMsg.text}
+                </div>
+              )}
             </div>
 
             {/* Divider */}

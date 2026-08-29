@@ -7,11 +7,11 @@ import {
   ParseIntPipe,
   Post,
   Put,
-  UploadedFile,
+  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { v2 as cloudinary } from 'cloudinary';
 import { ProductsService } from 'src/service/products.service';
@@ -52,36 +52,46 @@ export class ProductsController {
 
   @Post()
   @UseInterceptors(
-    FileInterceptor('image', {
+    FilesInterceptor('images', 5, {
       storage: memoryStorage(),
     }),
   )
   async create(
-    @UploadedFile() file: any,
+    @UploadedFiles() files: any[],
     @Body() createProductDto: CreateProductDto,
   ) {
-    const imageUrl = file
-      ? (await this.uploadToCloudinary(file)).secure_url
-      : undefined;
+    let images: string[] = [];
+    if (files && files.length > 0) {
+      const uploadPromises = files.map((file) => this.uploadToCloudinary(file));
+      const results = await Promise.all(uploadPromises);
+      images = results.map((res) => res.secure_url);
+    }
+    
+    const imageUrl = images.length > 0 ? images[0] : undefined;
+
     return this.productsService.create({
       ...createProductDto,
       imageUrl,
+      images: images.length > 0 ? images : undefined,
     });
   }
 
   @Put(':id')
   @UseInterceptors(
-    FileInterceptor('image', {
+    FilesInterceptor('images', 5, {
       storage: memoryStorage(),
     }),
   )
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @UploadedFile() file: any,
+    @UploadedFiles() files: any[],
     @Body() dto: UpdateProductDto,
   ) {
-    if (file) {
-      dto.imageUrl = (await this.uploadToCloudinary(file)).secure_url;
+    if (files && files.length > 0) {
+      const uploadPromises = files.map((file) => this.uploadToCloudinary(file));
+      const results = await Promise.all(uploadPromises);
+      dto.images = results.map((res) => res.secure_url);
+      dto.imageUrl = dto.images[0];
     }
     return this.productsService.update(id, dto);
   }

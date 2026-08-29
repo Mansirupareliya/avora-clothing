@@ -47,6 +47,11 @@ export default function Sidebar() {
           <span>Shopping Credits</span>
         </NavLink>
 
+        <NavLink to="/admin/coupons" className={menuClass}>
+          <span className="text-base">🎟️</span>
+          <span>Coupon Codes</span>
+        </NavLink>
+
         <NavLink to="/inventory" className={menuClass}>
           <span className="text-base">⚡</span>
           <span>Live Price &amp; Editor</span>

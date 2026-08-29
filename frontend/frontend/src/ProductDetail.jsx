@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useCart } from "./Context/CartContext";
 import { useAuth } from "./Context/AuthContext";
@@ -11,6 +11,7 @@ const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/prod
 
 export default function ProductDetail() {
   const { productId } = useParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -125,7 +126,11 @@ export default function ProductDetail() {
   const handleMouseLeave = () => setIsZoomed(false);
 
   const handleAddToCart = async () => {
-    await addToCart(product, quantity, selectedSize);
+    if (!user) {
+      alert("Please log in to add items to your cart.");
+      navigate("/store/login");
+      return;
+    }
     if (!selectedSize) {
       alert("Please select a size");
       return;
