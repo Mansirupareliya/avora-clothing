@@ -1,15 +1,16 @@
 import { useState } from "react";
 import axios from "axios";
+import { FiFileText, FiCheckCircle, FiPackage, FiSend, FiTruck, FiCheck, FiMapPin, FiClock, FiAlertCircle, FiClipboard, FiShoppingBag, FiSearch } from "react-icons/fi";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const TIMELINE_STEPS = [
-  { key: "pending",          label: "Order Placed",      icon: "📋" },
-  { key: "confirmed",        label: "Confirmed",         icon: "✅" },
-  { key: "packed",           label: "Packed",            icon: "📦" },
-  { key: "dispatched",       label: "Dispatched",        icon: "🚀" },
-  { key: "out_for_delivery", label: "Out for Delivery",  icon: "🛵" },
-  { key: "delivered",        label: "Delivered",         icon: "🎉" },
+  { key: "pending",          label: "Order Placed",      icon: <FiFileText size={18} /> },
+  { key: "confirmed",        label: "Confirmed",         icon: <FiCheckCircle size={18} /> },
+  { key: "packed",           label: "Packed",            icon: <FiPackage size={18} /> },
+  { key: "dispatched",       label: "Dispatched",        icon: <FiSend size={18} /> },
+  { key: "out_for_delivery", label: "Out for Delivery",  icon: <FiTruck size={18} /> },
+  { key: "delivered",        label: "Delivered",         icon: <FiCheck size={18} /> },
 ];
 
 const STATUS_ORDER = TIMELINE_STEPS.map((s) => s.key);
@@ -68,7 +69,9 @@ export default function OrderTrackingPage() {
       }}>
         <div style={{ maxWidth: 640, margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 16 }}>
-            <span style={{ fontSize: 36 }}>🚚</span>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <FiTruck size={36} color="#a78bfa" />
+            </div>
             <div>
               <p style={{ color: "#a78bfa", fontSize: 11, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", margin: 0 }}>
                 Delivery Limited × Avora Clothing
@@ -140,9 +143,9 @@ export default function OrderTrackingPage() {
           {error && (
             <div style={{
               background: "#fef2f2", border: "1px solid #fca5a5", color: "#b91c1c",
-              padding: "10px 14px", fontSize: 13, fontWeight: 500,
+              padding: "10px 14px", fontSize: 13, fontWeight: 500, display: "flex", alignItems: "center", gap: 6
             }}>
-              ⚠️ {error}
+              <FiAlertCircle size={16} /> {error}
             </div>
           )}
 
@@ -151,15 +154,28 @@ export default function OrderTrackingPage() {
             type="submit"
             disabled={loading}
             style={{
-              background: "var(--primary)", color: "#fff", border: "none",
-              padding: "14px 24px", fontSize: 14, fontWeight: 700,
-              letterSpacing: "0.06em", textTransform: "uppercase",
+              background: "var(--primary)", color: "#fff", border: "1px solid var(--primary)",
+              padding: "14px 24px", fontSize: 13, fontWeight: 700,
+              letterSpacing: "0.08em", textTransform: "uppercase",
               cursor: loading ? "not-allowed" : "pointer",
-              opacity: loading ? 0.7 : 1, transition: "opacity 0.2s",
-              width: "100%",
+              opacity: loading ? 0.7 : 1, transition: "all 0.2s ease",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+              width: "100%", borderRadius: 4,
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.color = "var(--primary)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!loading) {
+                e.currentTarget.style.background = "var(--primary)";
+                e.currentTarget.style.color = "#fff";
+              }
             }}
           >
-            {loading ? "🔍 Searching…" : "🔍 Track My Order"}
+            {loading ? <><FiSearch size={16} /> Searching…</> : <><FiSearch size={16} /> Track My Order</>}
           </button>
         </form>
 
@@ -177,9 +193,9 @@ export default function OrderTrackingPage() {
                   <span style={{
                     background: "#c86f49", color: "#fff", fontFamily: "monospace",
                     fontSize: 16, fontWeight: 800, padding: "4px 12px", letterSpacing: "0.08em",
-                    display: "inline-block", marginBottom: 8,
+                    display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 8,
                   }}>
-                    🆔 {tracking.orderId}
+                    <FiPackage size={16} /> {tracking.orderId}
                   </span>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                     <span style={{
@@ -187,7 +203,7 @@ export default function OrderTrackingPage() {
                       fontSize: 12, fontWeight: 700, padding: "3px 10px", letterSpacing: "0.06em",
                       textTransform: "uppercase", display: "inline-flex", alignItems: "center", gap: 6,
                     }}>
-                      🚚 Delivery Limited
+                      <FiTruck size={12} /> Delivery Limited
                       {tracking.awbNumber && (
                         <span style={{ fontFamily: "monospace", color: "#6366f1" }}>· {tracking.awbNumber}</span>
                       )}
@@ -209,8 +225,8 @@ export default function OrderTrackingPage() {
                     Ordered: {new Date(tracking.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                   </p>
                   {tracking.estimatedDelivery && !["delivered", "cancelled"].includes(tracking.status) && (
-                    <p style={{ color: "#16a34a", fontWeight: 700 }}>
-                      📅 Est. Delivery: {new Date(tracking.estimatedDelivery).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                    <p style={{ color: "#16a34a", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 6 }}>
+                      <FiClock size={12} /> Est. Delivery: {new Date(tracking.estimatedDelivery).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                     </p>
                   )}
                   <p style={{ color: "var(--primary)", fontWeight: 700, fontSize: 15, marginTop: 4 }}>
@@ -233,8 +249,8 @@ export default function OrderTrackingPage() {
             {/* ── Visual Tracking Timeline ── */}
             {!isCancelled ? (
               <div style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: 28, marginBottom: 20 }}>
-                <h2 style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--muted)", marginBottom: 28 }}>
-                  📍 Live Tracking Timeline
+                <h2 style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--muted)", marginBottom: 28, display: "flex", alignItems: "center", gap: 6 }}>
+                  <FiMapPin size={14} /> Live Tracking Timeline
                 </h2>
 
                 {/* Desktop horizontal stepper */}
@@ -259,7 +275,7 @@ export default function OrderTrackingPage() {
                             position: "relative",
                             zIndex: 1,
                           }}>
-                            {done ? (active ? step.icon : "✅") : step.icon}
+                            {done ? (active ? step.icon : <FiCheck size={20} />) : step.icon}
                           </div>
 
                           {/* Label */}
@@ -279,8 +295,8 @@ export default function OrderTrackingPage() {
                               </p>
                             )}
                             {matchedEvent?.location && (
-                              <p style={{ fontSize: 10, color: "#6366f1", margin: "2px 0 0", fontWeight: 600 }}>
-                                📍 {matchedEvent.location}
+                              <p style={{ fontSize: 10, color: "#6366f1", margin: "2px 0 0", fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
+                                <FiMapPin size={10} /> {matchedEvent.location}
                               </p>
                             )}
                           </div>
@@ -303,10 +319,10 @@ export default function OrderTrackingPage() {
             ) : (
               <div style={{
                 background: "#fef2f2", border: "1px solid #fca5a5", color: "#b91c1c",
-                padding: 24, marginBottom: 20, textAlign: "center",
+                padding: 24, marginBottom: 20, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center"
               }}>
-                <p style={{ fontSize: 32, marginBottom: 8 }}>❌</p>
-                <p style={{ fontWeight: 800, fontSize: 16, textTransform: "uppercase", letterSpacing: "0.08em" }}>Order Cancelled</p>
+                <div style={{ marginBottom: 12 }}><FiAlertCircle size={42} /></div>
+                <p style={{ fontWeight: 800, fontSize: 16, textTransform: "uppercase", letterSpacing: "0.08em", margin: 0 }}>Order Cancelled</p>
                 <p style={{ fontSize: 13, marginTop: 6, opacity: 0.8 }}>This order has been cancelled. Contact support if you need help.</p>
               </div>
             )}
@@ -314,8 +330,8 @@ export default function OrderTrackingPage() {
             {/* ── Detailed History Log ── */}
             {Array.isArray(tracking.trackingHistory) && tracking.trackingHistory.length > 0 && (
               <div style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: 24, marginBottom: 20 }}>
-                <h3 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--muted)", marginBottom: 20 }}>
-                  📋 Full Tracking History
+                <h3 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--muted)", marginBottom: 20, display: "flex", alignItems: "center", gap: 6 }}>
+                  <FiClipboard size={14} /> Full Tracking History
                 </h3>
                 <div style={{ position: "relative" }}>
                   {[...tracking.trackingHistory].reverse().map((evt, idx, arr) => (
@@ -343,8 +359,8 @@ export default function OrderTrackingPage() {
                         </p>
                         <p style={{ color: "var(--muted)", fontSize: 12, margin: "4px 0 0" }}>{evt.message}</p>
                         {evt.location && (
-                          <p style={{ color: "#6366f1", fontSize: 12, fontWeight: 600, margin: "3px 0 0" }}>
-                            📍 {evt.location}
+                          <p style={{ color: "#6366f1", fontSize: 12, fontWeight: 600, margin: "3px 0 0", display: "flex", alignItems: "center", gap: 4 }}>
+                            <FiMapPin size={10} /> {evt.location}
                           </p>
                         )}
                         <p style={{ color: "var(--muted)", fontSize: 11, fontFamily: "monospace", margin: "4px 0 0" }}>
@@ -363,8 +379,8 @@ export default function OrderTrackingPage() {
             {/* Ordered Items */}
             {Array.isArray(tracking.items) && tracking.items.length > 0 && (
               <div style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: 24 }}>
-                <h3 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--muted)", marginBottom: 16 }}>
-                  🛍 Items in This Order
+                <h3 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--muted)", marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>
+                  <FiShoppingBag size={14} /> Items in This Order
                 </h3>
                 {tracking.items.map((item, idx) => (
                   <div key={idx} style={{

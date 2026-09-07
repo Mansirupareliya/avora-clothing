@@ -358,6 +358,10 @@ export default function ProductDetail() {
                     MRP: <span className="line-through">₹{product.mrp}</span> Inclusive of all Taxes
                   </p>
                 )}
+                
+                <p className="text-xs font-semibold text-[#c86f49] mt-1">
+                  Free delivery on prepaid orders
+                </p>
 
               </div>
             </div>

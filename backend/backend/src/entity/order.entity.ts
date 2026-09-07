@@ -1,5 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
+export type PaymentStatus = 'unpaid' | 'paid' | 'failed';
+
 export type OrderStatus =
   | 'pending'
   | 'confirmed'
@@ -76,6 +78,24 @@ export class Order {
   /** Auto-appended log of every status change with timestamp + location */
   @Column({ type: 'jsonb', nullable: true, default: [] })
   trackingHistory?: TrackingEvent[];
+
+  // ─── Payment Fields ────────────────────────────────────────────────────────────
+
+  /** Payment method chosen by customer: 'cod', 'razorpay', or 'qr' */
+  @Column({ type: 'varchar', nullable: true, default: 'cod' })
+  paymentMethod?: string;
+
+  /** Payment lifecycle: unpaid → paid or failed */
+  @Column({ type: 'varchar', nullable: true, default: 'unpaid' })
+  paymentStatus?: PaymentStatus;
+
+  /** Razorpay order ID (from our backend after creating Razorpay order) */
+  @Column({ type: 'varchar', nullable: true })
+  razorpayOrderId?: string;
+
+  /** Razorpay payment ID (returned by Razorpay after successful customer payment) */
+  @Column({ type: 'varchar', nullable: true })
+  razorpayPaymentId?: string;
 
   // ─────────────────────────────────────────────────────────────────────────────
 

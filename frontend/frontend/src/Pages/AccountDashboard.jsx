@@ -7,7 +7,7 @@ import {
   FiLock, FiLogOut, FiChevronRight, FiPlus, FiEdit2,
   FiTrash2, FiStar, FiCheck, FiEye, FiEyeOff, FiAlertCircle,
   FiCheckCircle, FiHome, FiX, FiArrowLeft, FiMenu,
-  FiGift, FiCreditCard, FiClock
+  FiGift, FiCreditCard, FiClock, FiFileText, FiSend, FiTruck, FiInfo, FiClipboard, FiList
 } from "react-icons/fi";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -375,12 +375,12 @@ function WishlistSection() {
    ORDER TRACKING TIMELINE (Modal)
 ══════════════════════════════════════════════ */
 const TRACK_STEPS = [
-  { key: "pending",          label: "Order Placed",      icon: "📋" },
-  { key: "confirmed",        label: "Confirmed",         icon: "✅" },
-  { key: "packed",           label: "Packed",            icon: "📦" },
-  { key: "dispatched",       label: "Dispatched",        icon: "🚀" },
-  { key: "out_for_delivery", label: "Out for Delivery",  icon: "🛵" },
-  { key: "delivered",        label: "Delivered",         icon: "🎉" },
+  { key: "pending",          label: "Order Placed",      icon: <FiFileText size={18} /> },
+  { key: "confirmed",        label: "Confirmed",         icon: <FiCheckCircle size={18} /> },
+  { key: "packed",           label: "Packed",            icon: <FiPackage size={18} /> },
+  { key: "dispatched",       label: "Dispatched",        icon: <FiSend size={18} /> },
+  { key: "out_for_delivery", label: "Out for Delivery",  icon: <FiTruck size={18} /> },
+  { key: "delivered",        label: "Delivered",         icon: <FiCheck size={18} /> },
 ];
 const TRACK_STATUS_ORDER = TRACK_STEPS.map((s) => s.key);
 
@@ -415,8 +415,8 @@ function TrackingModal({ order, onClose }) {
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 22 }}>
           <div>
-            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--muted)", margin: "0 0 4px" }}>
-              🚚 Delivery Limited × Avora
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--muted)", margin: "0 0 4px", display: "flex", alignItems: "center", gap: 6 }}>
+              <FiTruck size={14} /> Delivery Limited × Avora
             </p>
             <h3 style={{ fontSize: 20, fontWeight: 800, color: "var(--text)", margin: 0 }}>
               Track Order · <span style={{ fontFamily: "monospace", color: "#c86f49" }}>{order.orderId || `AVR-${order.orderNumber}`}</span>
@@ -427,8 +427,8 @@ function TrackingModal({ order, onClose }) {
               </p>
             )}
             {order.estimatedDelivery && !["delivered", "cancelled"].includes(order.status) && (
-              <p style={{ fontSize: 12, color: "#16a34a", fontWeight: 700, margin: "4px 0 0" }}>
-                📅 Expected: {new Date(order.estimatedDelivery).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}
+              <p style={{ fontSize: 12, color: "#16a34a", fontWeight: 700, margin: "4px 0 0", display: "flex", alignItems: "center", gap: 6 }}>
+                <FiClock size={14} /> Expected: {new Date(order.estimatedDelivery).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}
               </p>
             )}
           </div>
@@ -460,7 +460,7 @@ function TrackingModal({ order, onClose }) {
                         boxShadow: active ? "0 0 0 5px rgba(200,111,73,0.15)" : "none",
                         transition: "all 0.3s",
                       }}>
-                        {done ? (active ? step.icon : "✅") : step.icon}
+                        {done ? (active ? step.icon : <FiCheck size={18} />) : step.icon}
                       </div>
                       <p style={{ fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "center", margin: "7px 0 0", color: done ? "var(--text)" : "var(--muted)", lineHeight: 1.3 }}>
                         {step.label}
@@ -472,7 +472,7 @@ function TrackingModal({ order, onClose }) {
                         </p>
                       )}
                       {matchedEvt?.location && (
-                        <p style={{ fontSize: 9, color: "#6366f1", fontWeight: 600, textAlign: "center", margin: "2px 0 0" }}>📍 {matchedEvt.location}</p>
+                        <p style={{ fontSize: 9, color: "#6366f1", fontWeight: 600, textAlign: "center", margin: "2px 0 0", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}><FiMapPin size={10} /> {matchedEvt.location}</p>
                       )}
                     </div>
                     {i < TRACK_STEPS.length - 1 && (
@@ -485,7 +485,9 @@ function TrackingModal({ order, onClose }) {
           </div>
         ) : (
           <div style={{ background: "#fef2f2", border: "1px solid #fca5a5", padding: "18px", marginBottom: 24, borderRadius: 8, textAlign: "center" }}>
-            <p style={{ fontSize: 28 }}>❌</p>
+            <div style={{ marginBottom: 12, display: "flex", justifyContent: "center", color: "#fca5a5" }}>
+              <FiAlertCircle size={42} />
+            </div>
             <p style={{ fontWeight: 800, fontSize: 15, color: "#b91c1c", textTransform: "uppercase" }}>Order Cancelled</p>
           </div>
         )}
@@ -493,8 +495,8 @@ function TrackingModal({ order, onClose }) {
         {/* Tracking History */}
         {history.length > 0 && (
           <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, padding: "20px", marginBottom: 20 }}>
-            <p style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--muted)", margin: "0 0 18px" }}>
-              📋 Tracking History
+            <p style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--muted)", margin: "0 0 18px" }}>
+              <FiClipboard size={14} /> Tracking History
             </p>
             {history.map((evt, idx) => (
               <div key={idx} style={{ display: "flex", gap: 14, position: "relative" }}>
@@ -507,7 +509,7 @@ function TrackingModal({ order, onClose }) {
                     {evt.status?.replace(/_/g, " ")}
                   </p>
                   <p style={{ color: "var(--muted)", fontSize: 12, margin: "3px 0 0" }}>{evt.message}</p>
-                  {evt.location && <p style={{ color: "#6366f1", fontSize: 11, fontWeight: 600, margin: "2px 0 0" }}>📍 {evt.location}</p>}
+                  {evt.location && <p style={{ color: "#6366f1", fontSize: 11, fontWeight: 600, margin: "2px 0 0", display: "flex", alignItems: "center", gap: 4 }}><FiMapPin size={10} /> {evt.location}</p>}
                   <p style={{ color: "var(--muted)", fontSize: 11, fontFamily: "monospace", margin: "3px 0 0" }}>
                     {new Date(evt.timestamp).toLocaleString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                   </p>
@@ -524,7 +526,7 @@ function TrackingModal({ order, onClose }) {
             <p style={{ fontWeight: 600, color: "var(--text)", margin: 0 }}>
               {order.shippingAddress.fullName} — {order.shippingAddress.addressLine1}, {order.shippingAddress.city} {order.shippingAddress.pincode}
             </p>
-            <p style={{ color: "var(--muted)", fontSize: 12, margin: "4px 0 0" }}>📞 {order.shippingAddress.phone}</p>
+            <p style={{ color: "var(--muted)", fontSize: 12, margin: "4px 0 0" }}>Phone: {order.shippingAddress.phone}</p>
           </div>
         )}
       </div>
@@ -556,20 +558,20 @@ function OrderCard({ order, displayOrderId }) {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, paddingBottom: 14, borderBottom: "1px solid var(--border)" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-              <span style={{ background: "#c86f49", color: "#fff", fontFamily: "monospace", fontWeight: 700, fontSize: 13, padding: "3px 10px", borderRadius: 0, letterSpacing: "0.05em" }}>
-                🆔 {displayOrderId}
+              <span style={{ display: "flex", alignItems: "center", gap: 6, background: "#c86f49", color: "#fff", fontFamily: "monospace", fontWeight: 700, fontSize: 13, padding: "3px 10px", borderRadius: 0, letterSpacing: "0.05em" }}>
+                <FiPackage size={14} /> {displayOrderId}
               </span>
               <Badge status={order.status || "pending"} />
               <span style={{ background: "#eef2ff", border: "1px solid #c7d2fe", color: "#4338ca", fontSize: 10, fontWeight: 700, padding: "2px 8px", letterSpacing: "0.06em", textTransform: "uppercase", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                🚚 Delivery Limited{order.awbNumber ? ` · ${order.awbNumber}` : ""}
+                <FiTruck size={12} /> Delivery Limited{order.awbNumber ? ` · ${order.awbNumber}` : ""}
               </span>
             </div>
             <p style={{ fontSize: 12, color: "var(--muted)", marginTop: 6, margin: "6px 0 0" }}>
               Placed on {new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
             </p>
             {order.estimatedDelivery && !["delivered", "cancelled"].includes(order.status) && (
-              <p style={{ fontSize: 12, color: "#16a34a", fontWeight: 700, margin: "3px 0 0" }}>
-                📅 Expected by {new Date(order.estimatedDelivery).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}
+              <p style={{ fontSize: 12, color: "#16a34a", fontWeight: 700, margin: "3px 0 0", display: "flex", alignItems: "center", gap: 4 }}>
+                <FiClock size={12} /> Expected by {new Date(order.estimatedDelivery).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}
               </p>
             )}
           </div>
@@ -604,8 +606,8 @@ function OrderCard({ order, displayOrderId }) {
 
         <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px dashed var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
           {order.shippingAddress && (
-            <div style={{ fontSize: 12, color: "var(--muted)" }}>
-              📍 <strong style={{ color: "var(--text)" }}>{order.shippingAddress.fullName}</strong>{" "}
+            <div style={{ fontSize: 12, color: "var(--muted)", display: "flex", alignItems: "center", gap: 6 }}>
+              <FiMapPin size={14} /> <strong style={{ color: "var(--text)" }}>{order.shippingAddress.fullName}</strong>{" "}
               ({order.shippingAddress.city} - {order.shippingAddress.pincode})
             </div>
           )}
@@ -613,17 +615,24 @@ function OrderCard({ order, displayOrderId }) {
           <button
             onClick={() => setShowTracking(true)}
             style={{
-              display: "inline-flex", alignItems: "center", gap: 7,
-              background: "linear-gradient(135deg, #4338ca, #6366f1)",
-              color: "#fff", border: "none", padding: "9px 18px",
-              fontSize: 12, fontWeight: 700, letterSpacing: "0.06em",
+              display: "inline-flex", alignItems: "center", gap: 8,
+              background: "var(--primary)",
+              color: "#fff", border: "1px solid var(--primary)",
+              padding: "10px 20px",
+              fontSize: 12, fontWeight: 700, letterSpacing: "0.08em",
               textTransform: "uppercase", cursor: "pointer",
-              borderRadius: 6, transition: "opacity 0.2s",
+              borderRadius: 4, transition: "all 0.2s ease",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
-            onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "transparent";
+              e.currentTarget.style.color = "var(--primary)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "var(--primary)";
+              e.currentTarget.style.color = "#fff";
+            }}
           >
-            📍 Track Order
+            <FiMapPin size={14} /> Track Order
           </button>
         </div>
       </div>

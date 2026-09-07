@@ -619,7 +619,7 @@ export default function Store() {
                   {filteredProducts.map((product) => (
                     <div
                       key={product.id}
-                      className="product-home-card overflow-hidden shadow-sm hover:shadow-xl transition relative bg-[var(--surface)]"
+                      className="product-home-card group overflow-hidden shadow-sm hover:shadow-xl transition relative bg-transparent"
                       style={{ borderRadius: 0 }}
                     >
                       <Link to={`/store/${product.id}`} style={{ textDecoration: "none", color: "inherit" }}>
@@ -632,7 +632,7 @@ export default function Store() {
                             <img
                               src={product.imageUrl}
                               alt={product.name}
-                              className="w-full h-full object-cover transition-transform duration-500"
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                               style={{ display: "block" }}
                             />
                           ) : (
@@ -703,6 +703,9 @@ export default function Store() {
                               ₹{(product.mrp - product.price)?.toLocaleString("en-IN")} Off
                             </p>
                           )}
+                          <p style={{ fontSize: "clamp(9px, 1.8vw, 11px)", color: "#c86f49", fontWeight: 600, marginTop: 4 }}>
+                            Free delivery on prepaid orders
+                          </p>
                         </div>
                       </Link>
                     </div>
