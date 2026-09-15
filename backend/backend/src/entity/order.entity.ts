@@ -9,6 +9,7 @@ export type OrderStatus =
   | 'dispatched'
   | 'out_for_delivery'
   | 'delivered'
+  | 'rto'
   | 'cancelled';
 
 export interface TrackingEvent {
@@ -78,6 +79,14 @@ export class Order {
   /** Auto-appended log of every status change with timestamp + location */
   @Column({ type: 'jsonb', nullable: true, default: [] })
   trackingHistory?: TrackingEvent[];
+
+  /** Delhivery pickup request id, once a pickup has been scheduled for this order */
+  @Column({ type: 'varchar', nullable: true })
+  pickupRequestId?: string;
+
+  /** Why the order came back as RTO (Return To Origin) — e.g. "Customer refused", "Unreachable" */
+  @Column({ type: 'varchar', nullable: true })
+  rtoReason?: string;
 
   // ─── Payment Fields ────────────────────────────────────────────────────────────
 

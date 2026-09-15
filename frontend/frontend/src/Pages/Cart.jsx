@@ -538,87 +538,79 @@ Payment is confirmed. Please process this order!`;
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
 
             {/* Cart Items */}
-            <div className="lg:col-span-8 space-y-4 md:space-y-6">
+            <div className="lg:col-span-8 space-y-4 md:space-y-5">
 
-              {cartItems.map((item, index) => (
+              {cartItems.map((item) => (
                 <div
                   key={item.id}
-                  className={`border-b border-[var(--border)] pb-6 md:pb-8 ${index === cartItems.length - 1 ? 'border-b-0' : ''}`}
+                  className="border border-[var(--border)] bg-[var(--surface)] p-4 md:p-5 flex gap-4 md:gap-5"
                 >
-                  <div className="flex gap-4 md:gap-8">
+                  <img
+                    src={item.imageUrl}
+                    alt={item.productName}
+                    className="w-24 h-28 md:w-28 md:h-32 object-cover flex-shrink-0 border border-[var(--border)]"
+                  />
 
-                    <img
-                      src={item.imageUrl}
-                      alt={item.productName}
-                      className="w-24 h-28 md:w-32 md:h-40 object-cover flex-shrink-0"
-                    />
+                  <div className="flex-1 min-w-0 flex flex-col justify-between">
 
-                    <div className="flex-1">
-
-                      <div className="flex justify-between items-start mb-3 md:mb-4">
-                        <div>
-                          <h3 className="text-sm md:text-base lg:text-lg font-medium uppercase tracking-wide mb-1">
-                            {item.productName}
-                          </h3>
-                          <div className="flex gap-2 md:gap-4 text-[10px] md:text-xs text-[var(--muted)] uppercase tracking-wider">
-                            <span>Size: {item.size || "N/A"}</span>
-                            <span>{item.category}</span>
-                          </div>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <h3 className="text-sm md:text-base font-semibold uppercase tracking-wide truncate">
+                          {item.productName}
+                        </h3>
+                        <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1.5 text-[10px] md:text-xs text-[var(--muted)] uppercase tracking-wider">
+                          <span>Size: {item.size || "N/A"}</span>
+                          {item.category && <span>{item.category}</span>}
+                          <span className="text-green-600">Free Shipping</span>
                         </div>
+                      </div>
+                      <button
+                        onClick={() => removeFromCart(item.id)}
+                        className="flex-shrink-0 text-[10px] md:text-xs text-[var(--muted)] hover:text-red-500 uppercase tracking-wider transition-colors"
+                      >
+                        Remove
+                      </button>
+                    </div>
+
+                    <div className="flex items-end justify-between gap-3 flex-wrap mt-4 md:mt-3">
+                      {/* Quantity */}
+                      <div className="flex items-center border border-[var(--border)]">
                         <button
-                          onClick={() => removeFromCart(item.id)}
-                          className="text-[10px] md:text-xs text-[var(--muted)] hover:text-red-500 uppercase tracking-wider transition-colors"
+                          onClick={() =>
+                            updateCart(
+                              item.id,
+                              Math.max(1, item.quantity - 1),
+                              item.size
+                            )
+                          }
+                          className="px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm hover:bg-[var(--bg)] transition-colors"
                         >
-                          Remove
+                          −
+                        </button>
+                        <span className="px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium min-w-[36px] md:min-w-[44px] text-center border-x border-[var(--border)]">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() =>
+                            updateCart(
+                              item.id,
+                              item.quantity + 1,
+                              item.size
+                            )
+                          }
+                          className="px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm hover:bg-[var(--bg)] transition-colors"
+                        >
+                          +
                         </button>
                       </div>
 
-                      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
-                        <div className="flex items-center gap-2 md:gap-4">
-                          <span className="text-lg md:text-xl font-light">
-                            ₹{item.price}
-                          </span>
-                          <span className="text-[10px] md:text-xs text-green-600 uppercase tracking-wider">
-                            Free Shipping
-                          </span>
-                        </div>
-
-                        {/* Quantity */}
-                        <div className="flex items-center border border-[var(--border)]">
-                          <button
-                            onClick={() =>
-                              updateCart(
-                                item.id,
-                                Math.max(1, item.quantity - 1),
-                                item.size
-                              )
-                            }
-                            className="px-3 py-2 md:px-4 md:py-2 text-xs md:text-sm hover:bg-[var(--surface)] transition-colors"
-                          >
-                            −
-                          </button>
-                          <span className="px-3 py-2 md:px-4 md:py-2 text-xs md:text-sm font-medium min-w-[40px] md:min-w-[48px] text-center">
-                            {item.quantity}
-                          </span>
-                          <button
-                            onClick={() =>
-                              updateCart(
-                                item.id,
-                                item.quantity + 1,
-                                item.size
-                              )
-                            }
-                            className="px-3 py-2 md:px-4 md:py-2 text-xs md:text-sm hover:bg-[var(--surface)] transition-colors"
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="text-right mt-3 md:mt-4">
-                        <span className="text-base md:text-lg font-medium">
+                      <div className="text-right">
+                        <p className="text-[10px] md:text-xs text-[var(--muted)]">
+                          ₹{item.price} × {item.quantity}
+                        </p>
+                        <p className="text-base md:text-lg font-semibold">
                           ₹{(item.price * item.quantity).toFixed(2)}
-                        </span>
+                        </p>
                       </div>
                     </div>
                   </div>

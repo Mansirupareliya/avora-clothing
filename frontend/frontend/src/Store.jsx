@@ -619,7 +619,7 @@ export default function Store() {
                   {filteredProducts.map((product) => (
                     <div
                       key={product.id}
-                      className="product-home-card group overflow-hidden shadow-sm hover:shadow-xl transition relative bg-transparent"
+                      className="product-home-card group overflow-hidden hover:shadow-lg transition relative bg-transparent"
                       style={{ borderRadius: 0 }}
                     >
                       <Link to={`/store/${product.id}`} style={{ textDecoration: "none", color: "inherit" }}>
@@ -674,8 +674,8 @@ export default function Store() {
                           </button>
                         </div>
 
-                        {/* Info */}
-                        <div style={{ padding: "8px 10px 10px" }}>
+                        {/* Info — sits below the image, no background */}
+                        <div style={{ padding: "10px 10px 12px" }}>
                           <h3 style={{
                             fontWeight: 600, fontSize: "clamp(11px, 2.5vw, 14px)",
                             textTransform: "uppercase", letterSpacing: "0.04em",
@@ -703,7 +703,7 @@ export default function Store() {
                               ₹{(product.mrp - product.price)?.toLocaleString("en-IN")} Off
                             </p>
                           )}
-                          <p style={{ fontSize: "clamp(9px, 1.8vw, 11px)", color: "#c86f49", fontWeight: 600, marginTop: 4 }}>
+                          <p style={{ fontSize: "clamp(9px, 1.8vw, 11px)", color: "#c86f49", fontWeight: 600, marginTop: 1 }}>
                             Free delivery on prepaid orders
                           </p>
                         </div>

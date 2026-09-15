@@ -1,9 +1,12 @@
 import { Injectable, OnModuleInit, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { Order, OrderStatus, TrackingEvent } from '../entity/order.entity';
+import { Return } from '../entity/return.entity';
 
 import { ShoppingCreditsService } from './shopping-credits.service';
+import { DelhiveryService } from './delhivery.service';
 
 // Human-readable labels for each status milestone shown on tracking timeline
 const STATUS_LABELS: Record<OrderStatus, { message: string; location?: string }> = {
@@ -13,6 +16,7 @@ const STATUS_LABELS: Record<OrderStatus, { message: string; location?: string }>
   dispatched:       { message: 'Picked up by Delivery Limited. Your package is on its way!', location: 'Origin Hub' },
   out_for_delivery: { message: 'Your package is out for delivery. Expect it today!', location: 'Local Delivery Hub' },
   delivered:        { message: 'Package delivered successfully. Enjoy your purchase!', location: 'Delivery Address' },
+  rto:              { message: 'Package could not be delivered and is being returned to origin (RTO).' },
   cancelled:        { message: 'Order has been cancelled.' },
 };
 
@@ -21,7 +25,10 @@ export class OrdersService implements OnModuleInit {
   constructor(
     @InjectRepository(Order)
     private orderRepo: Repository<Order>,
+    @InjectRepository(Return)
+    private returnRepo: Repository<Return>,
     private shoppingCreditsService: ShoppingCreditsService,
+    private delhiveryService: DelhiveryService,
   ) {}
 
   async onModuleInit() {
@@ -195,6 +202,30 @@ export class OrdersService implements OnModuleInit {
     };
     const order = this.orderRepo.create(orderData);
     const savedOrder: Order = await this.orderRepo.save(order);
+
+    // ─── Hand the order over to Delhivery ────────────────────────────────────
+    // Fire-and-forget: never block checkout if Delhivery is unreachable or
+    // not configured yet (DELHIVERY_API_TOKEN missing). Failures are logged
+    // and the order simply stays with no AWB until an admin retries manually
+    // via POST /orders/:id/delhivery/sync.
+    if (process.env.DELHIVERY_API_TOKEN) {
+      try {
+        const { waybill } = await this.delhiveryService.createOrder(savedOrder);
+        savedOrder.awbNumber = waybill;
+        savedOrder.courierPartner = 'Delhivery';
+        savedOrder.trackingHistory = [
+          ...(savedOrder.trackingHistory || []),
+          {
+            status: savedOrder.status,
+            timestamp: new Date().toISOString(),
+            message: `Shipment created with Delhivery. AWB: ${waybill}`,
+          },
+        ];
+        await this.orderRepo.save(savedOrder);
+      } catch (err) {
+        console.error(`[Delhivery] Failed to create shipment for order ${savedOrder.orderId}:`, err);
+      }
+    }
 
     // If a shopping credit was applied, mark it as used
     if (data.appliedCreditId || data.appliedCreditCode) {
@@ -433,6 +464,149 @@ export class OrdersService implements OnModuleInit {
       orderId: order.orderId,
       customerName: order.shippingAddress?.fullName,
       message: `✅ Order ${order.orderId} successfully marked as delivered to ${order.shippingAddress?.fullName || 'customer'}!`,
+    };
+  }
+
+  // ─── Delhivery: manual admin actions ─────────────────────────────────────────
+
+  // Admin: retry Delhivery shipment creation for an order that didn't get an AWB
+  // at checkout time (e.g. Delhivery was down, or DELHIVERY_API_TOKEN was unset).
+  async retryDelhiveryOrderCreation(id: string): Promise<Order> {
+    const order = await this.orderRepo.findOne({ where: { id } });
+    if (!order) throw new NotFoundException('Order not found');
+    if (order.awbNumber) throw new BadRequestException(`Order already has AWB ${order.awbNumber}.`);
+
+    const { waybill } = await this.delhiveryService.createOrder(order);
+    order.awbNumber = waybill;
+    order.courierPartner = 'Delhivery';
+    order.trackingHistory = [
+      ...(order.trackingHistory || []),
+      { status: order.status, timestamp: new Date().toISOString(), message: `Shipment created with Delhivery. AWB: ${waybill}` },
+    ];
+    return this.orderRepo.save(order);
+  }
+
+  // Admin: schedule a physical pickup at the warehouse for everything manifested today
+  async scheduleDelhiveryPickup(expectedPackageCount: number, pickupDate: string, pickupTime: string) {
+    return this.delhiveryService.createPickupRequest(expectedPackageCount, pickupDate, pickupTime);
+  }
+
+  // Sanity-check tool for testing: verifies DELHIVERY_API_TOKEN + connectivity, and pincode coverage.
+  async checkDelhiveryServiceability(pincode: string) {
+    return this.delhiveryService.checkServiceability(pincode);
+  }
+
+  // Admin: mark an order as RTO (courier could not deliver, sending it back to warehouse)
+  async markRto(id: string, reason: string): Promise<Order> {
+    const order = await this.orderRepo.findOne({ where: { id } });
+    if (!order) throw new NotFoundException('Order not found');
+
+    order.status = 'rto';
+    order.rtoReason = reason;
+    order.trackingHistory = [
+      ...(order.trackingHistory || []),
+      { status: 'rto', timestamp: new Date().toISOString(), message: `Returned to origin: ${reason}` },
+    ];
+    return this.orderRepo.save(order);
+  }
+
+  // Pull the latest status for one order's AWB from Delhivery and apply it locally.
+  // Used both by the manual "sync" endpoint and by the cron job below.
+  private async syncOneOrderWithDelhivery(order: Order): Promise<Order> {
+    if (!order.awbNumber) return order;
+
+    const result = await this.delhiveryService.trackShipment(order.awbNumber);
+    if (!result.mappedStatus || result.mappedStatus === order.status) return order;
+
+    // Never move a terminal order backwards
+    if (['delivered', 'cancelled', 'rto'].includes(order.status)) return order;
+
+    order.status = result.mappedStatus;
+    if (result.mappedStatus === 'rto') {
+      order.rtoReason = result.instructions || `Delhivery status: ${result.rawStatus}`;
+    }
+    order.trackingHistory = [
+      ...(order.trackingHistory || []),
+      {
+        status: result.mappedStatus,
+        timestamp: result.statusDateTime || new Date().toISOString(),
+        message: `Delhivery status: ${result.rawStatus}${result.instructions ? ` (${result.instructions})` : ''}`,
+        location: result.location,
+      },
+    ];
+    return this.orderRepo.save(order);
+  }
+
+  // Admin: manually trigger a sync for a single order (useful for testing without waiting for the cron)
+  async syncDelhiveryOrder(id: string): Promise<Order> {
+    const order = await this.orderRepo.findOne({ where: { id } });
+    if (!order) throw new NotFoundException('Order not found');
+    return this.syncOneOrderWithDelhivery(order);
+  }
+
+  // Cron: every 30 minutes, poll Delhivery for every in-flight shipment and
+  // update our local status (dispatched → out_for_delivery → delivered/rto).
+  // This is the reliable path since Delhivery's push-webhook payload shape
+  // isn't publicly documented — polling the Track API always works.
+  @Cron(CronExpression.EVERY_30_MINUTES)
+  async syncAllDelhiveryOrders(): Promise<void> {
+    if (!process.env.DELHIVERY_API_TOKEN) return; // not configured yet — skip silently
+
+    const inFlight = await this.orderRepo
+      .createQueryBuilder('o')
+      .where('o.courierPartner = :cp', { cp: 'Delhivery' })
+      .andWhere('o.awbNumber IS NOT NULL')
+      .andWhere('o.status NOT IN (:...terminal)', { terminal: ['delivered', 'cancelled', 'rto'] })
+      .getMany();
+
+    for (const order of inFlight) {
+      try {
+        await this.syncOneOrderWithDelhivery(order);
+      } catch (err) {
+        console.error(`[Delhivery Sync] Failed to sync order ${order.orderId} (AWB ${order.awbNumber}):`, err);
+      }
+    }
+  }
+
+  // ─── Inbound webhook (in case push notifications are enabled on your Delhivery account) ────
+  async processDelhiveryWebhook(body: { waybill: string; status: string; location?: string; instructions?: string }) {
+    const { waybill, status, location, instructions } = body;
+    if (!waybill) return { success: false, message: 'waybill is required' };
+
+    const order = await this.orderRepo.findOne({ where: { awbNumber: waybill } });
+    if (!order) return { success: false, message: `No order found with AWB: ${waybill}` };
+
+    if (['delivered', 'cancelled', 'rto'].includes(order.status)) {
+      return { success: true, orderId: order.orderId, message: `Order ${order.orderId} is already ${order.status}. No update applied.` };
+    }
+
+    await this.syncOneOrderWithDelhivery(order);
+    return { success: true, orderId: order.orderId, message: `Order ${order.orderId} synced from Delhivery webhook (raw status: ${status}).` };
+  }
+
+  // ─── Courier partner dashboard stats ─────────────────────────────────────────
+  // GET /orders/courier/stats?courierPartner=Delhivery
+  async getCourierStats(courierPartner?: string) {
+    const qb = this.orderRepo.createQueryBuilder('o');
+    if (courierPartner) qb.andWhere('o.courierPartner = :cp', { cp: courierPartner });
+    const orders = await qb.getMany();
+
+    // Customer returns (post-delivery, customer-initiated) live in a separate table —
+    // scope them to this courier's orders by joining on orderId.
+    const orderIds = new Set(orders.map((o) => o.orderId));
+    const allReturns = await this.returnRepo.find();
+    const customerReturns = courierPartner
+      ? allReturns.filter((r) => orderIds.has(r.orderId)).length
+      : allReturns.length;
+
+    return {
+      received: orders.filter((o) => !!o.awbNumber).length,
+      dispatched: orders.filter((o) => o.status === 'dispatched').length,
+      outForDelivery: orders.filter((o) => o.status === 'out_for_delivery').length,
+      delivered: orders.filter((o) => o.status === 'delivered').length,
+      rto: orders.filter((o) => o.status === 'rto').length,
+      cancelled: orders.filter((o) => o.status === 'cancelled').length,
+      customerReturns,
     };
   }
 }

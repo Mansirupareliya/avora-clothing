@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { useCart } from "../Context/CartContext";
 import { useAuth } from "../Context/AuthContext";
@@ -10,6 +10,7 @@ export default function PublicHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef(null);
+  const location = useLocation();
 
   const { cartCount } = useCart();
   const { user, logout } = useAuth();
@@ -108,6 +109,41 @@ export default function PublicHeader() {
                 {mobileMenuOpen ? <FiX size={22} /> : <FiMenu size={22} />}
               </button>
 
+              {/* Wishlist Icon */}
+              <Link
+                to={user ? "/store/account" : "/store/login"}
+                state={user ? { section: "wishlist" } : { from: location }}
+                className="flex items-center justify-center w-9 h-9 rounded-full text-[var(--text)] hover:text-[var(--accent)] hover:bg-[var(--bg)] transition"
+                style={{ textDecoration: "none" }}
+                aria-label="Wishlist"
+              >
+                <FiHeart size={18} />
+              </Link>
+
+              {/* Cart Icon */}
+              <Link
+                to={user ? "/cart" : "/store/login"}
+                state={user ? undefined : { from: location }}
+                className="relative flex items-center justify-center w-9 h-9 rounded-full text-[var(--text)] hover:text-[var(--accent)] hover:bg-[var(--bg)] transition"
+                style={{ textDecoration: "none" }}
+                aria-label="Cart"
+              >
+                <FiShoppingCart size={18} />
+                {cartCount > 0 && (
+                  <span
+                    style={{
+                      position: "absolute", top: -2, right: -2,
+                      background: "var(--accent)", color: "#fff",
+                      fontSize: 10, fontWeight: 700, borderRadius: 99,
+                      minWidth: 16, height: 16, display: "flex",
+                      alignItems: "center", justifyContent: "center", padding: "0 4px",
+                    }}
+                  >
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
+
               {/* User Menu */}
               <div className="relative" ref={userMenuRef}>
                 {user ? (
@@ -139,69 +175,59 @@ export default function PublicHeader() {
 
                 {/* Dropdown Menu */}
                 {showUserMenu && user && (
-                  <div className="absolute right-0 mt-2 w-52 bg-[var(--surface)] border border-[var(--border)] shadow-xl overflow-hidden z-50" style={{ borderRadius: 8 }}>
-                    <div className="px-4 py-3 border-b border-[var(--border)]" style={{ background: "var(--primary)" }}>
-                      <p className="text-sm font-semibold truncate" style={{ color: "#fff" }}>{user.name}</p>
-                      <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.6)" }}>{user.email}</p>
+                  <div
+                    className="absolute right-0 mt-3 w-64 bg-[var(--surface)] border border-[var(--border)] overflow-hidden z-50"
+                    style={{ borderRadius: 14, boxShadow: "0 16px 40px rgba(15,23,36,0.16)" }}
+                  >
+                    {/* Header */}
+                    <div
+                      className="flex items-center gap-3 px-5 py-4"
+                      style={{ background: "linear-gradient(135deg, var(--primary), #2f3f5c)" }}
+                    >
+                      <div
+                        className="w-11 h-11 rounded-full flex items-center justify-center text-base font-semibold flex-shrink-0"
+                        style={{ background: "rgba(255,255,255,0.16)", color: "#fff" }}
+                      >
+                        {user.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold truncate" style={{ color: "#fff" }}>{user.name}</p>
+                        <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.65)" }}>{user.email}</p>
+                      </div>
                     </div>
-                    <Link
-                      to="/store/account"
-                      onClick={() => setShowUserMenu(false)}
-                      className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition hover:bg-[var(--bg)]"
-                      style={{ color: "var(--text)", textDecoration: "none" }}
-                      state={{ section: "profile" }}
-                    >
-                      <FiUser size={14} /> My Account
-                    </Link>
-                    <Link
-                      to="/cart"
-                      onClick={() => setShowUserMenu(false)}
-                      className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition hover:bg-[var(--bg)]"
-                      style={{ color: "var(--text)", textDecoration: "none" }}
-                    >
-                      <FiShoppingCart size={14} />
-                      <span>My Cart</span>
-                      {cartCount > 0 && (
-                        <span style={{
-                          marginLeft: "auto",
-                          background: "var(--accent)",
-                          color: "#fff",
-                          fontSize: 10,
-                          fontWeight: 700,
-                          borderRadius: 99,
-                          padding: "1px 7px",
-                          minWidth: 18,
-                          textAlign: "center",
-                        }}>
-                          {cartCount}
+
+                    {/* Menu items */}
+                    <div className="py-2">
+                      <Link
+                        to="/store/account"
+                        onClick={() => setShowUserMenu(false)}
+                        className="flex items-center gap-3 w-full px-5 py-3 text-sm font-medium transition hover:bg-[var(--bg)]"
+                        style={{ color: "var(--text)", textDecoration: "none" }}
+                        state={{ section: "orders" }}
+                      >
+                        <span
+                          className="flex items-center justify-center w-8 h-8 rounded-full flex-shrink-0"
+                          style={{ background: "rgba(33,45,67,0.08)", color: "var(--primary)" }}
+                        >
+                          <FiPackage size={15} />
                         </span>
-                      )}
-                    </Link>
-                    <Link
-                      to="/store/account"
-                      onClick={() => setShowUserMenu(false)}
-                      className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition hover:bg-[var(--bg)]"
-                      style={{ color: "var(--text)", textDecoration: "none" }}
-                      state={{ section: "orders" }}
-                    >
-                      <FiPackage size={14} /> My Orders
-                    </Link>
-                    <Link
-                      to="/store/account"
-                      onClick={() => setShowUserMenu(false)}
-                      className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition hover:bg-[var(--bg)]"
-                      style={{ color: "var(--text)", textDecoration: "none" }}
-                      state={{ section: "wishlist" }}
-                    >
-                      <FiHeart size={14} /> My Wishlist
-                    </Link>
-                    <div className="border-t border-[var(--border)]">
+                        My Orders
+                      </Link>
+
+                      <div className="mx-5 my-1 border-t border-[var(--border)]" />
+
                       <button
                         onClick={() => { logout(); setShowUserMenu(false); }}
-                        className="flex items-center gap-3 w-full text-left px-4 py-3 text-sm font-medium transition hover:bg-[var(--bg)]"
+                        className="flex items-center gap-3 w-full text-left px-5 py-3 text-sm font-medium transition hover:bg-red-50"
                         style={{ color: "#ef4444" }}
                       >
-                        <FiLogOut size={14} /> Sign Out
+                        <span
+                          className="flex items-center justify-center w-8 h-8 rounded-full flex-shrink-0"
+                          style={{ background: "rgba(239,68,68,0.08)" }}
+                        >
+                          <FiLogOut size={15} />
+                        </span>
+                        Sign Out
                       </button>
                     </div>
                   </div>

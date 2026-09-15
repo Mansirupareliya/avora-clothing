@@ -115,14 +115,21 @@ export default function ProductDetail() {
     ? product.images
     : [product.imageUrl];
 
-  const handleMouseMove = (e) => {
+  const getPointFromEvent = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    setMousePosition({ x, y });
+    const x = Math.min(100, Math.max(0, ((e.clientX - rect.left) / rect.width) * 100));
+    const y = Math.min(100, Math.max(0, ((e.clientY - rect.top) / rect.height) * 100));
+    return { x, y };
   };
 
-  const handleMouseEnter = () => setIsZoomed(true);
+  const handleMouseMove = (e) => {
+    setMousePosition(getPointFromEvent(e));
+  };
+
+  const handleMouseEnter = (e) => {
+    setMousePosition(getPointFromEvent(e));
+    setIsZoomed(true);
+  };
   const handleMouseLeave = () => setIsZoomed(false);
 
   const handleAddToCart = async () => {
@@ -306,9 +313,9 @@ export default function ProductDetail() {
             </div>
 
             {/* Main Image with Zoom */}
-            <div className="flex-1  overflow-hidden border border-[var(--border)] bg-[var(--surface)] relative">
+            <div className="flex-1 border border-[var(--border)] bg-[var(--surface)] relative">
               <div
-                className="w-full h-[350px] md:h-[450px] lg:h-[560px] overflow-hidden cursor-zoom-in"
+                className={`w-full h-[350px] md:h-[450px] lg:h-[560px] overflow-hidden ${isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'}`}
                 onMouseMove={handleMouseMove}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
@@ -316,13 +323,19 @@ export default function ProductDetail() {
                 <img
                   src={productImages[selectedImage]}
                   alt={product.name}
-                  className={`w-full h-full object-cover transition-transform duration-300 ${isZoomed ? 'scale-150' : 'scale-100'
+                  className={`w-full h-full object-cover transition-transform ease-out ${isZoomed ? 'duration-100 scale-[2.2]' : 'duration-300 scale-100'
                     }`}
                   style={{
-                    transformOrigin: isZoomed ? `${mousePosition.x}% ${mousePosition.y}%` : 'center center'
+                    transformOrigin: `${mousePosition.x}% ${mousePosition.y}%`
                   }}
+                  draggable={false}
                 />
               </div>
+              {!isZoomed && (
+                <span className="pointer-events-none absolute bottom-3 right-3 hidden md:inline-flex items-center gap-1 rounded-full bg-black/55 px-3 py-1 text-[11px] font-medium text-white">
+                  Hover to zoom
+                </span>
+              )}
             </div>
           </div>
 
@@ -718,100 +731,162 @@ export default function ProductDetail() {
                 </div>
               )}
             </div>
-            <div className="mt-4 md:mt-6 border-t border-gray-200 pt-4 space-y-3">
-              {[
-                {
-                  title: "Product Details",
-                  content:
-                    product.description ||
-                    "Premium quality fabric with comfortable fit and durable stitching.",
-                },
-                {
-                  title: "Shipping Information",
-                  content:
-                    "Orders are processed within 24-48 hours. Delivery usually takes 3-7 business days depending on your location.",
-                },
-                {
-                  title: "Exchange Policy",
-                  content:
-                    "Easy 7-day exchange available for size issues. Product must be unused and in original condition.",
-                },
-                {
-                  title: "Care Instructions",
-                  content:
-                    "Machine wash cold. Do not bleach. Iron on low heat. Wash dark colors separately.",
-                },
-              ].map((item, index) => (
-                <div
-                  key={index}
-                  className=" overflow-hidden"
-                >
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setOpenAccordion(openAccordion === index ? null : index)
-                    }
-                    className="w-full flex items-center justify-between px-2 py-1 text-left font-medium"
-                  >
-                    <span>{item.title}</span>
-                    <span className="text-lg">
-                      {openAccordion === index ? "−" : "+"}
-                    </span>
-                  </button>
-
-                  {openAccordion === index && (
-                    <div className="px-4 pb-4 text-sm text-gray-600 leading-6">
-                      {item.content}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
           </div>
         </div>
 
-        {/* Reviews Section */}
-        <div className="mt-12 bg-[var(--surface)] p-8 md:p-12  border border-[var(--border)]">
+        {/* Product Details Accordion — outside the white product card */}
+        <div className="mt-8 md:mt-10 border-t border-[var(--border)] divide-y divide-[var(--border)]">
+          {[
+            {
+              title: "Product Details",
+              content:
+                product.description ||
+                "Premium quality fabric with comfortable fit and durable stitching.",
+            },
+            {
+              title: "Shipping Information",
+              content:
+                "Orders are processed within 24-48 hours. Delivery usually takes 3-7 business days depending on your location.",
+            },
+            {
+              title: "Exchange Policy",
+              content:
+                "Easy 7-day exchange available for size issues. Product must be unused and in original condition.",
+            },
+            {
+              title: "Care Instructions",
+              content:
+                "Machine wash cold. Do not bleach. Iron on low heat. Wash dark colors separately.",
+            },
+          ].map((item, index) => (
+            <div key={index}>
+              <button
+                type="button"
+                onClick={() =>
+                  setOpenAccordion(openAccordion === index ? null : index)
+                }
+                className="w-full flex items-center justify-between py-4 text-left"
+              >
+                <span className="text-sm md:text-base font-semibold text-[var(--text)]">{item.title}</span>
+                <span className="text-xl text-[var(--muted)]">
+                  {openAccordion === index ? "−" : "+"}
+                </span>
+              </button>
+
+              {openAccordion === index && (
+                <div className="pb-5 text-sm text-[var(--muted)] leading-6">
+                  {item.content}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Reviews Section — Classic */}
+        <div className="mt-12 border-t-2 border-b-2 border-[var(--border)] py-10 md:py-14" style={{ fontFamily: "var(--review-sans)" }}>
+          {/* Section Heading */}
+          <div className="text-center mb-10">
+            <h2 className="text-2xl md:text-3xl tracking-[0.08em] text-[var(--text)]" style={{ fontFamily: "var(--review-heading)", fontWeight: 600 }}>
+              Customer Reviews
+            </h2>
+            <div className="mt-3 flex items-center justify-center gap-3">
+              <span className="h-px w-10 bg-[var(--border)]" />
+              <span className="text-[#c86f49] text-sm">✦</span>
+              <span className="h-px w-10 bg-[var(--border)]" />
+            </div>
+          </div>
+
+          {/* Rating Summary */}
+          <div className="max-w-3xl mx-auto flex flex-col sm:flex-row items-center gap-8 sm:gap-12 mb-12 pb-10 border-b border-[var(--border)]">
+            <div className="text-center flex-shrink-0">
+              <div className="text-6xl text-[var(--text)]" style={{ fontFamily: "var(--review-heading)", fontWeight: 500 }}>
+                {reviews.length > 0
+                  ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)
+                  : "0.0"}
+              </div>
+              <div className="flex text-yellow-600 mt-2 justify-center text-lg">
+                {[...Array(5)].map((_, i) => (
+                  <span
+                    key={i}
+                    className={
+                      i < Math.round(reviews.length > 0 ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length : 0)
+                        ? "opacity-100"
+                        : "opacity-25"
+                    }
+                  >
+                    ★
+                  </span>
+                ))}
+              </div>
+              <p className="text-xs text-[var(--muted)] mt-2 uppercase tracking-wider">
+                Based on {reviews.length} {reviews.length === 1 ? "Review" : "Reviews"}
+              </p>
+            </div>
+
+            <div className="flex-1 w-full space-y-2">
+              {[5, 4, 3, 2, 1].map((star) => {
+                const count = reviews.filter((r) => r.rating === star).length;
+                const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
+                return (
+                  <div key={star} className="flex items-center gap-3">
+                    <span className="text-xs w-12 text-[var(--muted)] whitespace-nowrap">{star} star</span>
+                    <div className="flex-1 h-1.5 bg-gray-200 overflow-hidden">
+                      <div className="h-full bg-yellow-600" style={{ width: `${percentage}%` }} />
+                    </div>
+                    <span className="text-xs text-[var(--muted)] w-6 text-right">{count}</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={() => setShowReviewForm(!showReviewForm)}
+              className="flex-shrink-0 border border-[var(--primary)] text-[var(--primary)] px-6 py-3 text-xs font-semibold uppercase tracking-wider hover:bg-[var(--primary)] hover:text-white transition"
+            >
+              {showReviewForm ? "Close Form" : "Write a Review"}
+            </button>
+          </div>
+
           {/* Review Form - Collapsible */}
           {showReviewForm && (
-            <form onSubmit={handleSubmitReview} className="mb-12 p-8 md:p-10 bg-[var(--bg)]  border border-[var(--border)] shadow-sm">
-              <div className="mb-8 pb-6 border-b border-[var(--border)]">
-                <h3 className="text-2xl font-light uppercase tracking-widest mb-2" style={{ fontFamily: '"Louis George Cafe", system-ui, sans-serif' }}>
+            <form onSubmit={handleSubmitReview} className="max-w-2xl mx-auto mb-10 p-6 md:p-7 bg-[var(--bg)] border border-[var(--border)] shadow-sm" style={{ fontFamily: "var(--review-sans)" }}>
+              <div className="mb-5 pb-3 border-b border-[var(--border)]">
+                <h3 className="text-xl tracking-tight mb-1" style={{ fontFamily: "var(--review-heading)", fontWeight: 600 }}>
                   Write a Review
                 </h3>
-                <p className="text-sm text-[var(--muted)]">
+                <p className="text-sm text-[var(--muted)]" style={{ fontFamily: "var(--review-sans)" }}>
                   Share your experience with this product to help others make informed decisions.
                 </p>
               </div>
 
-              <div className="space-y-8">
+              <div className="space-y-4">
                 {/* Name Field */}
                 <div>
-                  <label className="block text-sm font-medium mb-3 uppercase tracking-wider text-[var(--text)]">
+                  <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider text-[var(--text)]">
                     Your Name
                   </label>
                   <input
                     type="text"
                     value={newReview.name}
                     onChange={(e) => setNewReview({ ...newReview, name: e.target.value })}
-                    className="w-full px-5 py-4 border border-[var(--border)]  focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition bg-[var(--surface)]"
+                    className="w-full px-4 py-2.5 border border-[var(--border)]  focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition bg-[var(--surface)]"
                     placeholder="Enter your name"
-                    style={{ fontFamily: '"Louis George Cafe", system-ui, sans-serif' }}
+                    style={{ fontFamily: "var(--review-sans)" }}
                   />
                 </div>
 
                 {/* Star Rating */}
                 <div>
-                  <label className="block text-sm font-medium mb-3 uppercase tracking-wider text-[var(--text)]">
+                  <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider text-[var(--text)]">
                     Your Rating
                   </label>
-                  <div className="flex gap-2">
+                  <div className="flex gap-1.5">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
                         type="button"
                         onClick={() => setNewReview({ ...newReview, rating: star })}
-                        className="text-3xl transition-transform hover:scale-110 focus:outline-none"
+                        className="text-2xl transition-transform hover:scale-110 focus:outline-none"
                       >
                         <span className={star <= newReview.rating ? "text-yellow-500" : "text-gray-300"}>
                           ★
@@ -819,41 +894,42 @@ export default function ProductDetail() {
                       </button>
                     ))}
                   </div>
-                  <p className="text-sm text-[var(--muted)] mt-2">
+                  <p className="text-xs text-[var(--muted)] mt-1">
                     Click to rate: {newReview.rating} out of 5 stars
                   </p>
                 </div>
 
                 {/* Review Text */}
                 <div>
-                  <label className="block text-sm font-medium mb-3 uppercase tracking-wider text-[var(--text)]">
+                  <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider text-[var(--text)]">
                     Your Review
                   </label>
                   <textarea
                     value={newReview.comment}
                     onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
-                    className="w-full px-5 py-4 border border-[var(--border)]  focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition bg-[var(--surface)] h-40 resize-none"
+                    className="w-full px-4 py-2.5 border border-[var(--border)]  focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition bg-[var(--surface)] h-24 resize-none"
                     placeholder="Tell us about your experience with this product. What did you like or dislike?"
-                    style={{ fontFamily: '"Louis George Cafe", system-ui, sans-serif' }}
+                    style={{ fontFamily: "var(--review-sans)" }}
                   />
-                  <p className="text-xs text-[var(--muted)] mt-2 text-right">
+                  <p className="text-xs text-[var(--muted)] mt-1 text-right">
                     {newReview.comment.length} characters
                   </p>
                 </div>
 
                 {/* Submit Button */}
-                <div className="flex gap-4 pt-4">
+                <div className="flex gap-3 pt-1">
                   <button
                     type="submit"
-                    className="flex-1 bg-[var(--primary)] text-white font-semibold px-8 py-4  hover:bg-opacity-90 transition shadow-lg hover:shadow-xl"
-                    style={{ fontFamily: '"Louis George Cafe", system-ui, sans-serif' }}
+                    className="flex-1 bg-[var(--primary)] text-white font-semibold px-6 py-2.5  hover:bg-opacity-90 transition shadow-lg hover:shadow-xl"
+                    style={{ fontFamily: "var(--review-sans)" }}
                   >
                     Submit Review
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowReviewForm(false)}
-                    className="px-8 py-4 border border-[var(--border)]  hover:border-[var(--primary)] hover:text-[var(--primary)] transition font-medium"
+                    className="px-6 py-2.5 border border-[var(--border)]  hover:border-[var(--primary)] hover:text-[var(--primary)] transition font-medium"
+                    style={{ fontFamily: "var(--review-sans)" }}
                   >
                     Cancel
                   </button>
@@ -862,109 +938,60 @@ export default function ProductDetail() {
             </form>
           )}
 
-          {/* What Others Are Saying */}
-          <div className="mt-16">
-            <div className="flex items-center justify-between mb-10">
-              <h3 className="text-3xl font-light uppercase tracking-widest" style={{ fontFamily: '"Louis George Cafe", system-ui, sans-serif' }}>
-                Reviews
-              </h3>
-              <button
-                onClick={() => setShowReviewForm(!showReviewForm)}
-                className="text-sm font-medium uppercase tracking-wider text-[var(--primary)] hover:text-[var(--text)] transition border-b border-transparent hover:border-[var(--primary)] pb-1"
-              >
-                {showReviewForm ? "Close" : "Write a Review"}
-              </button>
+          {/* Reviews List */}
+          {reviews.length === 0 ? (
+            <div className="max-w-3xl mx-auto text-center py-16 border border-dashed border-[var(--border)]">
+              <p className="text-[var(--muted)] italic text-lg" style={{ fontFamily: "var(--review-heading)" }}>
+                No reviews yet. Be the first to share your experience.
+              </p>
             </div>
-
-            {reviews.length === 0 ? (
-              <div className="text-center py-20 border border-dashed border-[var(--border)]">
-                <p className="text-[var(--muted)] italic text-lg" style={{ fontFamily: '"Louis George Cafe", system-ui, sans-serif' }}>
-                  No reviews yet. Be the first to share your experience.
-                </p>
-              </div>
-            ) : (
-              <>
-                {/* Rating Summary */}
-                <div className="flex items-center gap-8 mb-12 pb-8 border-b border-[var(--border)]">
-                  <div className="text-center">
-                    <div className="text-5xl font-light">
-                      {(reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)}
-                    </div>
-                    <div className="flex text-yellow-600 mt-2 justify-center">
-                      {[...Array(5)].map((_, i) => (
-                        <span key={i} className={i < Math.round(reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length) ? "opacity-100" : "opacity-30"}>
-                          ★
-                        </span>
-                      ))}
-                    </div>
-                    <p className="text-sm text-[var(--muted)] mt-2">
-                      {reviews.length} {reviews.length === 1 ? 'Review' : 'Reviews'}
-                    </p>
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    {[5, 4, 3, 2, 1].map((star) => {
-                      const count = reviews.filter(r => r.rating === star).length;
-                      const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
-                      return (
-                        <div key={star} className="flex items-center gap-3">
-                          <span className="text-sm w-6">{star}★</span>
-                          <div className="flex-1 h-2 bg-gray-200  overflow-hidden">
-                            <div
-                              className="h-full bg-yellow-600 "
-                              style={{ width: `${percentage}%` }}
-                            />
-                          </div>
-                          <span className="text-sm text-[var(--muted)] w-8">{count}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Reviews List */}
-                <div className="space-y-10">
-                  {reviews.map((review) => (
-                    <div key={review.id || review._id} className="border-b border-[var(--border)] pb-10 last:border-b-0">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12  bg-[var(--primary)] text-white flex items-center justify-center text-lg font-semibold">
-                            {review.name.charAt(0).toUpperCase()}
-                          </div>
-                          <div>
-                            <h4 className="text-lg font-medium" style={{ fontFamily: '"Louis George Cafe", system-ui, sans-serif' }}>
-                              {review.name}
-                            </h4>
-                            <div className="flex items-center gap-3 mt-1">
-                              <div className="flex text-yellow-600">
-                                {[...Array(5)].map((_, i) => (
-                                  <span key={i} className={i < review.rating ? "opacity-100" : "opacity-30"}>
-                                    ★
-                                  </span>
-                                ))}
-                              </div>
-                              <span className="text-xs text-[var(--muted)] uppercase tracking-wider">
-                                Verified Purchase
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <span className="text-sm text-[var(--muted)]" style={{ fontFamily: '"Louis George Cafe", system-ui, sans-serif' }}>
-                          {review.date ? new Date(review.date).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          }) : ""}
-                        </span>
+          ) : (
+            <div className="max-w-3xl mx-auto space-y-6">
+              {reviews.map((review) => (
+                <div
+                  key={review.id || review._id}
+                  className="border border-[var(--border)] bg-[var(--surface)] p-6 md:p-8 hover:shadow-md transition"
+                >
+                  <div className="flex items-start justify-between gap-4 mb-3">
+                    <div className="flex items-center gap-4">
+                      <div className="w-11 h-11 rounded-full bg-[var(--primary)] text-white flex items-center justify-center text-base font-semibold flex-shrink-0">
+                        {review.name.charAt(0).toUpperCase()}
                       </div>
-                      <p className="text-[var(--text)] leading-relaxed text-lg" style={{ fontFamily: '"Louis George Cafe", system-ui, sans-serif' }}>
-                        {review.comment}
-                      </p>
+                      <div>
+                        <h4 className="text-base font-semibold text-[var(--text)]" style={{ fontFamily: "var(--review-sans)" }}>
+                          {review.name}
+                        </h4>
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          <div className="flex text-yellow-600 text-sm">
+                            {[...Array(5)].map((_, i) => (
+                              <span key={i} className={i < review.rating ? "opacity-100" : "opacity-25"}>
+                                ★
+                              </span>
+                            ))}
+                          </div>
+                          <span className="text-[10px] font-semibold uppercase tracking-wider text-[#c86f49] bg-[#c86f49]/10 px-2 py-0.5">
+                            Verified Purchase
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  ))}
+                    <span className="text-xs text-[var(--muted)] whitespace-nowrap" style={{ fontFamily: "var(--review-sans)" }}>
+                      {review.date
+                        ? new Date(review.date).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })
+                        : ""}
+                    </span>
+                  </div>
+                  <p className="text-[var(--text)] leading-relaxed text-sm md:text-base" style={{ fontFamily: "var(--review-heading)" }}>
+                    {review.comment}
+                  </p>
                 </div>
-              </>
-            )}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Suggested Products Section */}

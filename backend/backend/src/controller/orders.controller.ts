@@ -26,6 +26,25 @@ export class OrdersController {
     return this.ordersService.getPublicOrderTracking(orderId, phone);
   }
 
+  // ─── Delhivery Webhook ───────────────────────────────────────────────────────
+  // POST /orders/webhook/delhivery
+  // Only useful if push notifications are enabled on your Delhivery account —
+  // otherwise the cron job in OrdersService (every 30 min) covers this via polling.
+  // Body: { waybill, status, location?, instructions? }
+  @Post('webhook/delhivery')
+  @HttpCode(200)
+  async delhiveryWebhook(
+    @Headers('authorization') authHeader: string,
+    @Body() body: { waybill: string; status: string; location?: string; instructions?: string },
+  ) {
+    const secret = process.env.DELHIVERY_WEBHOOK_SECRET || 'avora-delhivery-webhook-secret-2026';
+    const expected = `Bearer ${secret}`;
+    if (!authHeader || authHeader !== expected) {
+      throw new UnauthorizedException('Invalid webhook secret. Include Authorization: Bearer <secret> header.');
+    }
+    return this.ordersService.processDelhiveryWebhook(body);
+  }
+
   // ─── Delivery Limited Webhook ───────────────────────────────────────────────
   // POST /orders/webhook/delivery-limited
   // Called automatically by Delivery Limited's software when they update delivery status.
@@ -73,6 +92,44 @@ export class OrdersController {
   @Get('admin/all')
   getAllAdminOrders() {
     return this.ordersService.getAllAdminOrders();
+  }
+
+  // Courier partner dashboard: received / dispatched / out-for-delivery / delivered / RTO / cancelled counts
+  // GET /orders/courier/stats?courierPartner=Delhivery
+  @Get('courier/stats')
+  getCourierStats(@Query('courierPartner') courierPartner?: string) {
+    return this.ordersService.getCourierStats(courierPartner);
+  }
+
+  // Admin: retry Delhivery shipment creation for an order that has no AWB yet
+  @Post(':id/delhivery/retry')
+  retryDelhiveryOrderCreation(@Param('id') id: string) {
+    return this.ordersService.retryDelhiveryOrderCreation(id);
+  }
+
+  // Admin: manually pull the latest status for one order from Delhivery (no need to wait for the cron)
+  @Post(':id/delhivery/sync')
+  syncDelhiveryOrder(@Param('id') id: string) {
+    return this.ordersService.syncDelhiveryOrder(id);
+  }
+
+  // Admin: schedule a physical pickup at the warehouse for today's manifested shipments
+  @Post('delhivery/schedule-pickup')
+  scheduleDelhiveryPickup(@Body() body: { expectedPackageCount: number; pickupDate: string; pickupTime: string }) {
+    return this.ordersService.scheduleDelhiveryPickup(body.expectedPackageCount, body.pickupDate, body.pickupTime);
+  }
+
+  // Admin: mark an order as RTO (courier could not deliver — sent back to warehouse)
+  @Patch(':id/rto')
+  markRto(@Param('id') id: string, @Body() body: { reason: string }) {
+    return this.ordersService.markRto(id, body.reason);
+  }
+
+  // Sanity-check tool: confirms your DELHIVERY_API_TOKEN + connectivity are working,
+  // and whether a given pincode is serviceable, before placing a real test order.
+  @Get('delhivery/serviceability/:pincode')
+  checkDelhiveryServiceability(@Param('pincode') pincode: string) {
+    return this.ordersService.checkDelhiveryServiceability(pincode);
   }
 
   // Admin endpoint: Update order status (auto-appends tracking event)
