@@ -1,4 +1,4 @@
-import React, { createContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useState, useCallback } from 'react';
 import axios from 'axios';
 
 const AuthContext = createContext();
@@ -15,15 +15,21 @@ function loadUser() {
   }
 }
 
+// Attach the token to every outgoing request at request-time, reading fresh
+// from localStorage. This avoids a race where a child component's own
+// useEffect (which fires before a parent's, e.g. AuthProvider's) sends a
+// request before the token had a chance to be set on axios.defaults.
+axios.interceptors.request.use((config) => {
+  const token = localStorage.getItem(TOKEN_KEY);
+  if (token) {
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(loadUser);
-
-  useEffect(() => {
-    const token = localStorage.getItem(TOKEN_KEY);
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    }
-  }, [user]);
 
   const signup = useCallback(async ({ name, email, password }) => {
     try {
@@ -31,7 +37,6 @@ export function AuthProvider({ children }) {
       const { access_token, user: newUser } = response.data;
       localStorage.setItem(TOKEN_KEY, access_token);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newUser));
-      axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
       setUser(newUser);
     } catch (error) {
       throw new Error(error.response?.data?.message || 'An error occurred during signup');
@@ -44,7 +49,6 @@ export function AuthProvider({ children }) {
       const { access_token, user: loggedInUser } = response.data;
       localStorage.setItem(TOKEN_KEY, access_token);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(loggedInUser));
-      axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
       setUser(loggedInUser);
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Incorrect email or password');
@@ -54,7 +58,6 @@ export function AuthProvider({ children }) {
   const logout = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(TOKEN_KEY);
-    delete axios.defaults.headers.common['Authorization'];
     setUser(null);
   }, []);
 
