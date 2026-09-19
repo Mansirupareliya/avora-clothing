@@ -731,55 +731,55 @@ export default function ProductDetail() {
                 </div>
               )}
             </div>
-          </div>
-        </div>
 
-        {/* Product Details Accordion — outside the white product card */}
-        <div className="mt-8 md:mt-10 border-t border-[var(--border)] divide-y divide-[var(--border)]">
-          {[
-            {
-              title: "Product Details",
-              content:
-                product.description ||
-                "Premium quality fabric with comfortable fit and durable stitching.",
-            },
-            {
-              title: "Shipping Information",
-              content:
-                "Orders are processed within 24-48 hours. Delivery usually takes 3-7 business days depending on your location.",
-            },
-            {
-              title: "Exchange Policy",
-              content:
-                "Easy 7-day exchange available for size issues. Product must be unused and in original condition.",
-            },
-            {
-              title: "Care Instructions",
-              content:
-                "Machine wash cold. Do not bleach. Iron on low heat. Wash dark colors separately.",
-            },
-          ].map((item, index) => (
-            <div key={index}>
-              <button
-                type="button"
-                onClick={() =>
-                  setOpenAccordion(openAccordion === index ? null : index)
-                }
-                className="w-full flex items-center justify-between py-4 text-left"
-              >
-                <span className="text-sm md:text-base font-semibold text-[var(--text)]">{item.title}</span>
-                <span className="text-xl text-[var(--muted)]">
-                  {openAccordion === index ? "−" : "+"}
-                </span>
-              </button>
+            {/* Product Details Accordion — below the Buy Now button, in the right column */}
+            <div className="mt-2 border-t border-[var(--border)] divide-y divide-[var(--border)]">
+              {[
+                {
+                  title: "Product Details",
+                  content:
+                    product.description ||
+                    "Premium quality fabric with comfortable fit and durable stitching.",
+                },
+                {
+                  title: "Shipping Information",
+                  content:
+                    "Orders are processed within 24-48 hours. Delivery usually takes 3-7 business days depending on your location.",
+                },
+                {
+                  title: "Exchange Policy",
+                  content:
+                    "Easy 7-day exchange available for size issues. Product must be unused and in original condition.",
+                },
+                {
+                  title: "Care Instructions",
+                  content:
+                    "Machine wash cold. Do not bleach. Iron on low heat. Wash dark colors separately.",
+                },
+              ].map((item, index) => (
+                <div key={index}>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setOpenAccordion(openAccordion === index ? null : index)
+                    }
+                    className="w-full flex items-center justify-between py-4 text-left"
+                  >
+                    <span className="text-sm md:text-base font-semibold text-[var(--text)]">{item.title}</span>
+                    <span className="text-xl text-[var(--muted)]">
+                      {openAccordion === index ? "−" : "+"}
+                    </span>
+                  </button>
 
-              {openAccordion === index && (
-                <div className="pb-5 text-sm text-[var(--muted)] leading-6">
-                  {item.content}
+                  {openAccordion === index && (
+                    <div className="pb-5 text-sm text-[var(--muted)] leading-6">
+                      {item.content}
+                    </div>
+                  )}
                 </div>
-              )}
+              ))}
             </div>
-          ))}
+          </div>
         </div>
 
         {/* Reviews Section — Classic */}

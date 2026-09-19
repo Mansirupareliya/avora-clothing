@@ -56,6 +56,18 @@ export class CouponService {
     return this.couponRepo.save(coupon);
   }
 
+  // ─── Public ──────────────────────────────────────────────────────────────────
+
+  async getFeaturedCoupon(): Promise<Coupon | null> {
+    const coupon = await this.couponRepo.findOne({
+      where: { isActive: true, featuredOnBanner: true },
+      order: { createdAt: 'DESC' },
+    });
+    if (!coupon) return null;
+    if (coupon.expiresAt && new Date(coupon.expiresAt) < new Date()) return null;
+    return coupon;
+  }
+
   // ─── User ─────────────────────────────────────────────────────────────────────
 
   async validateCoupon(

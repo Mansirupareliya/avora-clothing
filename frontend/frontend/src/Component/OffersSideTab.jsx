@@ -44,12 +44,13 @@ export default function OffersSideTab() {
 
   return (
     <>
-      {/* Floating Vertical Side Button (Left Edge — AVORA Minimalist Theme matching Login Screen) */}
+      {/* Floating Vertical Side Button (Left Edge — desktop only) */}
       <button
         onClick={() => {
           fetchOffers();
           setIsOpen(true);
         }}
+        className="hidden md:flex"
         style={{
           position: "fixed",
           left: 0,
@@ -64,7 +65,6 @@ export default function OffersSideTab() {
           padding: "14px 10px",
           cursor: "pointer",
           boxShadow: "0 8px 24px rgba(33, 45, 67, 0.12)",
-          display: "flex",
           flexDirection: "column",
           alignItems: "center",
           gap: 10,
@@ -112,6 +112,45 @@ export default function OffersSideTab() {
         >
           Special Offers
         </span>
+      </button>
+
+      {/* Floating Icon-only Button (Right Edge, above bottom nav — mobile only) */}
+      <button
+        onClick={() => {
+          fetchOffers();
+          setIsOpen(true);
+        }}
+        className="flex md:hidden"
+        aria-label="Special Offers"
+        style={{
+          position: "fixed",
+          right: 14,
+          bottom: 76,
+          zIndex: 45,
+          width: 48,
+          height: 48,
+          borderRadius: "50%",
+          background: "#ffffff",
+          border: "1px solid var(--border, #cbd5e1)",
+          boxShadow: "0 8px 24px rgba(33, 45, 67, 0.18)",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <div style={{ position: "relative" }}>
+          <FiGift size={20} style={{ color: "#c86f49" }} />
+          <span
+            style={{
+              position: "absolute",
+              top: -3,
+              right: -3,
+              width: 7,
+              height: 7,
+              borderRadius: "50%",
+              background: "#2da7a1",
+            }}
+          />
+        </div>
       </button>
 
       {/* Slide-out Offers Drawer / Modal — Exact AVORA Theme matching screenshot */}

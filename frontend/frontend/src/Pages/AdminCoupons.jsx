@@ -19,6 +19,9 @@ const emptyForm = {
   isActive: true,
   expiresAt: "",
   description: "",
+  featuredOnBanner: false,
+  bannerImageUrl: "",
+  bannerSubtext: "",
 };
 
 export default function AdminCoupons() {
@@ -71,6 +74,9 @@ export default function AdminCoupons() {
       isActive: coupon.isActive !== false,
       expiresAt: coupon.expiresAt ? new Date(coupon.expiresAt).toISOString().slice(0, 16) : "",
       description: coupon.description || "",
+      featuredOnBanner: coupon.featuredOnBanner || false,
+      bannerImageUrl: coupon.bannerImageUrl || "",
+      bannerSubtext: coupon.bannerSubtext || "",
     });
     setShowModal(true);
   };
@@ -402,6 +408,39 @@ export default function AdminCoupons() {
                     <span style={{ position: "absolute", height: 18, width: 18, left: form.isActive ? 23 : 3, bottom: 3, background: "#fff", borderRadius: "50%", transition: "0.2s" }} />
                   </span>
                 </label>
+              </div>
+
+              {/* Feature on Homepage Banner */}
+              <div style={{ background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 8, padding: "12px 16px" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", display: "block" }}>Feature on Homepage Banner</span>
+                    <span style={{ fontSize: 11, color: "var(--muted)" }}>Shows this coupon in the "GET X% OFF" promo banner on the store page</span>
+                  </div>
+                  <label style={{ position: "relative", display: "inline-block", width: 44, height: 24, cursor: "pointer", flexShrink: 0, marginLeft: 12 }}>
+                    <input type="checkbox" checked={form.featuredOnBanner} onChange={(e) => setForm({ ...form, featuredOnBanner: e.target.checked })} style={{ opacity: 0, width: 0, height: 0 }} />
+                    <span style={{ position: "absolute", inset: 0, background: form.featuredOnBanner ? "#16a34a" : "#cbd5e1", borderRadius: 20, transition: "0.2s" }}>
+                      <span style={{ position: "absolute", height: 18, width: 18, left: form.featuredOnBanner ? 23 : 3, bottom: 3, background: "#fff", borderRadius: "50%", transition: "0.2s" }} />
+                    </span>
+                  </label>
+                </div>
+
+                {form.featuredOnBanner && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 14 }}>
+                    <div>
+                      <label style={labelStyle}>Banner Subtext (Optional)</label>
+                      <input value={form.bannerSubtext} onChange={(e) => setForm({ ...form, bannerSubtext: e.target.value })}
+                        placeholder="e.g. On your first order" style={inputStyle} />
+                      <span style={hintStyle}>Defaults to the coupon description, or "On your first order"</span>
+                    </div>
+                    <div>
+                      <label style={labelStyle}>Banner Image URL (Optional)</label>
+                      <input value={form.bannerImageUrl} onChange={(e) => setForm({ ...form, bannerImageUrl: e.target.value })}
+                        placeholder="https://..." style={inputStyle} />
+                      <span style={hintStyle}>Leave blank for a plain dark banner with no photo</span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Buttons */}

@@ -1197,7 +1197,7 @@ export default function AccountDashboard() {
       {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
-          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 40, backdropFilter: "blur(2px)" }}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 45, backdropFilter: "blur(2px)" }}
         />
       )}
 
@@ -1305,34 +1305,6 @@ export default function AccountDashboard() {
               {renderSection()}
             </div>
           </main>
-
-          {/* ── Mobile bottom tab bar ── */}
-          <div className="lg:hidden" style={{
-            display: "flex", alignItems: "center",
-            borderTop: "1px solid var(--border)",
-            background: "var(--surface)",
-            position: "sticky", bottom: 0, zIndex: 30,
-            paddingBottom: "env(safe-area-inset-bottom)",
-          }}>
-            {NAV_ITEMS.map(({ key, icon: Icon, label }) => {
-              const isActive = active === key;
-              return (
-                <button key={key} onClick={() => setActive(key)} style={{
-                  flex: 1, display: "flex", flexDirection: "column", alignItems: "center",
-                  justifyContent: "center", gap: 3, padding: "10px 4px",
-                  background: "none", border: "none", cursor: "pointer",
-                  color: isActive ? "var(--primary)" : "var(--muted)",
-                  transition: "color 0.15s",
-                }}>
-                  <Icon size={isActive ? 20 : 18} strokeWidth={isActive ? 2.5 : 1.5} />
-                  <span style={{ fontSize: 9, fontWeight: isActive ? 700 : 500, letterSpacing: "0.04em", lineHeight: 1 }}>
-                    {label.split(" ").pop()}
-                  </span>
-                  {isActive && <div style={{ width: 4, height: 4, borderRadius: "50%", background: "var(--primary)", marginTop: 1 }} />}
-                </button>
-              );
-            })}
-          </div>
         </div>
       </div>
 

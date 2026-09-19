@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import Footer from "./Component/Footer";
+import PromoBanner from "./Component/PromoBanner";
 import { ProductCardSkeleton } from "./Component/Skeleton";
 import { useAuth } from "./Context/AuthContext";
 import heroShirts from "./assets/hero-shirts.png";
@@ -135,148 +136,48 @@ function CustomThemeDropdown({ options, value, onChange, highlight = false }) {
   );
 }
 
-// ─── Price Range Slider with Dots ───────────────────────────────────────────
-function PriceRangeSlider({ min, max, minVal, maxVal, onMinChange, onMaxChange }) {
-  const range = max - min || 1;
-  const DOT_COUNT = 6;
-  const dots = Array.from({ length: DOT_COUNT }, (_, i) =>
-    Math.round(min + (i / (DOT_COUNT - 1)) * range)
-  );
 
+// ─── Compact inline range slider for the price filter — sits directly in the
+// filter bar (no click-to-reveal), just narrow enough to keep the bar one line ──
+function CompactPriceRangeSlider({ min, max, minVal, maxVal, onMinChange, onMaxChange }) {
+  const range = max - min || 1;
   const minPct = ((minVal - min) / range) * 100;
   const maxPct = ((maxVal - min) / range) * 100;
 
   const clamp = (val, lo, hi) => Math.min(Math.max(val, lo), hi);
-
-  const handleMinChange = (e) => {
-    const val = clamp(Number(e.target.value), min, maxVal - 1);
-    onMinChange(val);
-  };
-  const handleMaxChange = (e) => {
-    const val = clamp(Number(e.target.value), minVal + 1, max);
-    onMaxChange(val);
-  };
-
-  const handleDotClick = (dotVal) => {
-    const distToMin = Math.abs(dotVal - minVal);
-    const distToMax = Math.abs(dotVal - maxVal);
-    if (distToMin <= distToMax) {
-      if (dotVal < maxVal) onMinChange(dotVal);
-    } else {
-      if (dotVal > minVal) onMaxChange(dotVal);
-    }
-  };
+  const handleMinChange = (e) => onMinChange(clamp(Number(e.target.value), min, maxVal - 1));
+  const handleMaxChange = (e) => onMaxChange(clamp(Number(e.target.value), minVal + 1, max));
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 220 }}>
-      {/* Label + values */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <span style={{
-          color: "var(--muted)", fontWeight: 600, fontSize: 11,
-          textTransform: "uppercase", letterSpacing: "0.04em"
-        }}>Price:</span>
-        <span style={{
-          fontSize: 11, fontWeight: 700, color: "var(--primary)",
-          background: "rgba(33,45,67,0.07)", padding: "2px 8px", borderRadius: 2,
-          letterSpacing: "0.02em",
-        }}>
-          ₹{minVal.toLocaleString("en-IN")} — ₹{maxVal.toLocaleString("en-IN")}
-        </span>
-      </div>
-
-      {/* Track + thumbs */}
-      <div style={{ position: "relative", height: 20, display: "flex", alignItems: "center" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 4, width: 150, flexShrink: 0 }}>
+      <span style={{ fontSize: 10, fontWeight: 700, color: "var(--primary)", whiteSpace: "nowrap" }}>
+        ₹{minVal.toLocaleString("en-IN")} – ₹{maxVal.toLocaleString("en-IN")}
+      </span>
+      <div style={{ position: "relative", height: 16, display: "flex", alignItems: "center" }}>
         {/* Background track */}
-        <div style={{
-          position: "absolute", left: 0, right: 0, height: 3,
-          background: "var(--border)", borderRadius: 2,
-        }} />
-
+        <div style={{ position: "absolute", left: 0, right: 0, height: 3, background: "var(--border)", borderRadius: 2 }} />
         {/* Active fill between thumbs */}
         <div style={{
-          position: "absolute",
-          left: `${minPct}%`,
-          width: `${maxPct - minPct}%`,
-          height: 3,
-          background: "var(--primary)",
-          borderRadius: 2,
+          position: "absolute", left: `${minPct}%`, width: `${maxPct - minPct}%`,
+          height: 3, background: "var(--primary)", borderRadius: 2,
           transition: "left 0.08s, width 0.08s",
         }} />
-
-        {/* Dots on the track */}
-        {dots.map((dotVal, i) => {
-          const pct = ((dotVal - min) / range) * 100;
-          const active = dotVal >= minVal && dotVal <= maxVal;
-          return (
-            <div
-              key={i}
-              onClick={() => handleDotClick(dotVal)}
-              title={`₹${dotVal.toLocaleString("en-IN")}`}
-              style={{
-                position: "absolute",
-                left: `calc(${pct}% - 5px)`,
-                width: 10, height: 10,
-                borderRadius: "50%",
-                background: active ? "var(--primary)" : "var(--border)",
-                border: `2px solid ${active ? "var(--primary)" : "var(--muted)"}`,
-                cursor: "pointer",
-                transition: "background 0.15s, transform 0.15s, border-color 0.15s",
-                zIndex: 2,
-                boxShadow: active ? "0 0 0 3px rgba(33,45,67,0.15)" : "none",
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.transform = "scale(1.4)";
-                e.currentTarget.style.boxShadow = "0 0 0 4px rgba(33,45,67,0.2)";
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.transform = "scale(1)";
-                e.currentTarget.style.boxShadow = active ? "0 0 0 3px rgba(33,45,67,0.15)" : "none";
-              }}
-            />
-          );
-        })}
-
         {/* Min thumb */}
         <input
-          type="range"
-          className="price-thumb"
-          min={min}
-          max={max}
-          value={minVal}
+          type="range" className="price-thumb" min={min} max={max} value={minVal}
           onChange={handleMinChange}
-          style={{
-            position: "absolute", width: "100%",
-            background: "transparent", zIndex: 4, height: 20,
-          }}
+          style={{ position: "absolute", width: "100%", background: "transparent", zIndex: 4, height: 16 }}
         />
         {/* Max thumb */}
         <input
-          type="range"
-          className="price-thumb"
-          min={min}
-          max={max}
-          value={maxVal}
+          type="range" className="price-thumb" min={min} max={max} value={maxVal}
           onChange={handleMaxChange}
-          style={{
-            position: "absolute", width: "100%",
-            background: "transparent", zIndex: 4, height: 20,
-          }}
+          style={{ position: "absolute", width: "100%", background: "transparent", zIndex: 4, height: 16 }}
         />
-      </div>
-
-      {/* Min / Max labels */}
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <span style={{ fontSize: 10, color: "var(--muted)", fontWeight: 500 }}>
-          ₹{min.toLocaleString("en-IN")}
-        </span>
-        <span style={{ fontSize: 10, color: "var(--muted)", fontWeight: 500 }}>
-          ₹{max.toLocaleString("en-IN")}
-        </span>
       </div>
     </div>
   );
 }
-
 
 export default function Store() {
   const { user } = useAuth();
@@ -494,18 +395,20 @@ export default function Store() {
 
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-6 md:py-8">
         <div className="space-y-4">
-          {/* Theme-Matched Filter & Sort Bar — single line */}
-          <div style={{
-            background: "var(--surface)",
-            border: "1px solid var(--border)",
-            borderRadius: 0,
-            padding: "10px 16px",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
-            marginBottom: 20,
-            overflowX: "auto",
-            WebkitOverflowScrolling: "touch",
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "nowrap", minWidth: "max-content" }}>
+          {/* Theme-Matched Filter & Sort Bar — always one line; scrolls only if the
+              viewport is too narrow to fit it, never wraps to a second line */}
+          <div
+            className="filter-bar-scroll"
+            style={{
+              background: "var(--surface)",
+              border: "1px solid var(--border)",
+              borderRadius: 0,
+              padding: "10px 16px",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
+              marginBottom: 20,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", flexWrap: "nowrap", gap: 12, width: "max-content", minWidth: "100%" }}>
 
               {/* Category Dropdown */}
               <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
@@ -517,12 +420,12 @@ export default function Store() {
                 />
               </div>
 
-              {/* Divider */}
               <div style={{ width: 1, height: 20, background: "var(--border)", flexShrink: 0 }} />
 
-              {/* Price Range Slider */}
-              <div style={{ flexShrink: 0 }}>
-                <PriceRangeSlider
+              {/* Price Range — actual draggable range slider, inline */}
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                <span style={{ color: "var(--muted)", fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.04em", whiteSpace: "nowrap" }}>Price:</span>
+                <CompactPriceRangeSlider
                   min={priceMinBound}
                   max={priceMaxBound}
                   minVal={minPrice}
@@ -532,11 +435,10 @@ export default function Store() {
                 />
               </div>
 
-              {/* Divider — hidden on mobile */}
-              <div className="hidden md:block" style={{ width: 1, height: 20, background: "var(--border)", flexShrink: 0 }} />
+              <div style={{ width: 1, height: 20, background: "var(--border)", flexShrink: 0 }} />
 
-              {/* Discount Dropdown — hidden on mobile */}
-              <div className="hidden md:flex" style={{ alignItems: "center", gap: 6, flexShrink: 0 }}>
+              {/* Discount Dropdown */}
+              <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
                 <span style={{ color: "var(--muted)", fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.04em", whiteSpace: "nowrap" }}>Discount:</span>
                 <CustomThemeDropdown
                   options={[
@@ -550,8 +452,7 @@ export default function Store() {
                 />
               </div>
 
-              {/* Spacer */}
-              <div style={{ flex: 1, minWidth: 16 }} />
+              <div style={{ width: 1, height: 20, background: "var(--border)", flexShrink: 0 }} />
 
               {/* Sort Dropdown */}
               <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
@@ -716,6 +617,8 @@ export default function Store() {
           </div>
         </div>
       </div>
+
+      <PromoBanner />
 
       <Footer />
     </div>

@@ -37,6 +37,13 @@ export class CouponController {
     return this.couponService.getCouponStats(id);
   }
 
+  // ─── Public Routes ──────────────────────────────────────────────────────────
+
+  @Get('featured')
+  getFeaturedCoupon() {
+    return this.couponService.getFeaturedCoupon();
+  }
+
   // ─── User Routes ──────────────────────────────────────────────────────────
 
   @Post('validate')

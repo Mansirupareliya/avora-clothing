@@ -8,6 +8,7 @@ export default function PublicHeader() {
   const [searchActive, setSearchActive] = useState(false);
   const [activeTab, setActiveTab] = useState("Home");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef(null);
   const location = useLocation();
@@ -24,6 +25,17 @@ export default function PublicHeader() {
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  // Let the mobile bottom nav's Search tab open this header's search box
+  useEffect(() => {
+    const openSearch = () => {
+      setMobileMenuOpen(false);
+      setMobileSearchOpen(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+    window.addEventListener("avora:toggle-search", openSearch);
+    return () => window.removeEventListener("avora:toggle-search", openSearch);
   }, []);
 
   const navItems = [
@@ -62,7 +74,8 @@ export default function PublicHeader() {
 
       <header className="bg-[var(--surface)] sticky top-0 z-40 shadow-sm border-b border-[var(--border)]">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-3">
-          <div className="flex items-center justify-between gap-6">
+          {/* Desktop Row */}
+          <div className="hidden md:flex items-center justify-between gap-6">
             <div className="flex items-center gap-2 flex-shrink-0">
               <Link to="/store" style={{ textDecoration: "none" }}>
                 <h6 className="logo-text font-bold text-[var(--primary)]" style={{ margin: 0 }}>AVORA</h6>
@@ -70,7 +83,7 @@ export default function PublicHeader() {
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-6 flex-1 justify-start ml-8">
+            <div className="flex items-center gap-6 flex-1 justify-start ml-8">
               {navItems.map((item) => (
                 <Link
                   key={item.label}
@@ -87,7 +100,7 @@ export default function PublicHeader() {
             </div>
 
             {/* Desktop Search */}
-            <div className="hidden md:flex flex-1 min-w-0 relative">
+            <div className="flex flex-1 min-w-0 relative">
               <input
                 type="text"
                 placeholder="Search..."
@@ -101,14 +114,6 @@ export default function PublicHeader() {
             </div>
 
             <div className="flex items-center gap-3 flex-shrink-0">
-              {/* Mobile Menu Button */}
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden text-[var(--text)] hover:text-[var(--primary)] transition"
-              >
-                {mobileMenuOpen ? <FiX size={22} /> : <FiMenu size={22} />}
-              </button>
-
               {/* Wishlist Icon */}
               <Link
                 to={user ? "/store/account" : "/store/login"}
@@ -155,8 +160,7 @@ export default function PublicHeader() {
                     <div className="w-8 h-8 rounded-full bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center text-xs shadow-sm" style={{ flexShrink: 0 }}>
                       {user.name.charAt(0).toUpperCase()}
                     </div>
-                    {/* Name hidden on mobile, visible on md+ */}
-                    <span className="hidden md:block" style={{ color: "var(--text)", fontSize: 13, fontWeight: 600, maxWidth: 90, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <span style={{ color: "var(--text)", fontSize: 13, fontWeight: 600, maxWidth: 90, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {user.name.split(" ")[0]}
                     </span>
                   </button>
@@ -237,10 +241,79 @@ export default function PublicHeader() {
             </div>
           </div>
 
-          {/* Mobile Menu */}
+          {/* Mobile Row: hamburger — centered logo — search + cart */}
+          <div className="flex md:hidden items-center justify-between gap-2">
+            <button
+              onClick={() => {
+                setMobileMenuOpen((v) => !v);
+                setMobileSearchOpen(false);
+              }}
+              className="flex items-center justify-center w-9 h-9 flex-shrink-0 text-[var(--text)] hover:text-[var(--primary)] transition"
+              aria-label="Menu"
+            >
+              {mobileMenuOpen ? <FiX size={22} /> : <FiMenu size={22} />}
+            </button>
+
+            <Link to="/store" className="flex-1 text-center min-w-0" style={{ textDecoration: "none" }}>
+              <h6 className="logo-text font-bold text-[var(--primary)] truncate" style={{ margin: 0 }}>AVORA</h6>
+            </Link>
+
+            <div className="flex items-center gap-1 flex-shrink-0">
+              <button
+                onClick={() => {
+                  setMobileSearchOpen((v) => !v);
+                  setMobileMenuOpen(false);
+                }}
+                className="flex items-center justify-center w-9 h-9 text-[var(--text)] hover:text-[var(--primary)] transition"
+                aria-label="Search"
+              >
+                <FiSearch size={19} />
+              </button>
+
+              <Link
+                to={user ? "/cart" : "/store/login"}
+                state={user ? undefined : { from: location }}
+                className="relative flex items-center justify-center w-9 h-9 text-[var(--text)] hover:text-[var(--primary)] transition"
+                style={{ textDecoration: "none" }}
+                aria-label="Cart"
+              >
+                <FiShoppingCart size={19} />
+                {cartCount > 0 && (
+                  <span
+                    style={{
+                      position: "absolute", top: 2, right: 2,
+                      background: "var(--accent)", color: "#fff",
+                      fontSize: 10, fontWeight: 700, borderRadius: 99,
+                      minWidth: 16, height: 16, display: "flex",
+                      alignItems: "center", justifyContent: "center", padding: "0 4px",
+                    }}
+                  >
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
+            </div>
+          </div>
+
+          {/* Mobile Search (collapsible) */}
+          {mobileSearchOpen && (
+            <div className="md:hidden mt-3 relative">
+              <input
+                type="text"
+                autoFocus
+                placeholder="Search..."
+                className="w-full px-3 py-2 border border-[var(--border)] bg-[var(--bg)] text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 placeholder:text-[var(--muted)]"
+              />
+              <button className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted)] hover:text-[var(--primary)] transition flex items-center">
+                <FiSearch size={15} />
+              </button>
+            </div>
+          )}
+
+          {/* Mobile Menu (hamburger — site navigation) */}
           {mobileMenuOpen && (
             <div className="md:hidden mt-4 pb-4 border-t border-[var(--border)] pt-4">
-              <div className="space-y-3 mb-4">
+              <div className="space-y-3">
                 {navItems.map((item) => (
                   <Link
                     key={item.label}
@@ -258,15 +331,46 @@ export default function PublicHeader() {
                   </Link>
                 ))}
               </div>
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="w-full px-3 py-2 border border-[var(--border)] bg-[var(--bg)] text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 placeholder:text-[var(--muted)]"
-                />
-                <button className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted)] hover:text-[var(--primary)] transition flex items-center">
-                  <FiSearch size={15} />
-                </button>
+
+              <div className="mt-3 pt-3 border-t border-[var(--border)] space-y-3">
+                <Link
+                  to={user ? "/store/account" : "/store/login"}
+                  state={user ? { section: "wishlist" } : { from: location }}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 text-sm font-medium text-[var(--text)] hover:text-[var(--primary)] transition"
+                  style={{ textDecoration: "none" }}
+                >
+                  <FiHeart size={16} /> Wishlist
+                </Link>
+
+                {user ? (
+                  <>
+                    <Link
+                      to="/store/account"
+                      state={{ section: "orders" }}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 text-sm font-medium text-[var(--text)] hover:text-[var(--primary)] transition"
+                      style={{ textDecoration: "none" }}
+                    >
+                      <FiPackage size={16} /> My Orders
+                    </Link>
+                    <button
+                      onClick={() => { logout(); setMobileMenuOpen(false); }}
+                      className="flex items-center gap-3 text-sm font-medium text-red-500"
+                    >
+                      <FiLogOut size={16} /> Sign Out
+                    </button>
+                  </>
+                ) : (
+                  <Link
+                    to="/store/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 text-sm font-medium text-[var(--text)] hover:text-[var(--primary)] transition"
+                    style={{ textDecoration: "none" }}
+                  >
+                    <FiUser size={16} /> Login
+                  </Link>
+                )}
               </div>
             </div>
           )}

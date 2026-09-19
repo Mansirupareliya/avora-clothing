@@ -40,6 +40,16 @@ export class Coupon {
   @Column({ type: 'varchar', nullable: true })
   description?: string;
 
+  // Homepage promo banner (e.g. "GET 15% OFF ON YOUR FIRST ORDER")
+  @Column({ type: 'boolean', default: false })
+  featuredOnBanner!: boolean;
+
+  @Column({ type: 'varchar', nullable: true })
+  bannerImageUrl?: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  bannerSubtext?: string;
+
   @CreateDateColumn()
   createdAt!: Date;
 

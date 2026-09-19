@@ -348,6 +348,18 @@ input[type="range"].price-thumb::-moz-range-thumb {
   pointer-events: all;
 }
 
+/* ─── Filter bar: single row, scrolls only if it truly can't fit, no visible scrollbar ─── */
+.filter-bar-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.filter-bar-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 /* ─── Razorpay spinner animation ─────────────────────────── */
 @keyframes spin {
   from { transform: rotate(0deg); }
